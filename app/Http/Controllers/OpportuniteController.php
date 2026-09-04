@@ -9,6 +9,7 @@ use App\Models\Opportunite;
 use App\Models\Referentiels\EtapePipeline;
 use App\Models\Referentiels\MotifPerte;
 use App\Models\Societe;
+use App\Support\Audit;
 use App\Support\ClotureOpportunite;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -120,6 +121,7 @@ class OpportuniteController extends Controller
         }
 
         $cloture->gagner($opportunite, $request->user());
+        Audit::tracer($request->user()->id, Audit::CHANGEMENT_STATUT, 'Opportunite', $opportunite->id, 'statut', 'Ouverte', 'Gagnee');
 
         return back()->with('success',
             "Affaire gagnée. {$opportunite->societe?->raison_sociale} devient cliente (RG-OPP-003).");
@@ -151,6 +153,7 @@ class OpportuniteController extends Controller
         }
 
         $cloture->perdre($opportunite, (int) $data['motif_perte_id'], $data['commentaire'] ?? null, $request->user());
+        Audit::tracer($request->user()->id, Audit::CHANGEMENT_STATUT, 'Opportunite', $opportunite->id, 'statut', 'Ouverte', 'Perdue');
 
         return back()->with('success', 'Affaire clôturée en perte.');
     }

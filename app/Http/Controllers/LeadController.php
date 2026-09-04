@@ -10,6 +10,7 @@ use App\Models\Referentiels\TypeActivite;
 use App\Models\Referentiels\PalierScore;
 use App\Models\Referentiels\Source;
 use App\Models\Referentiels\StatutLead;
+use App\Support\Audit;
 use App\Support\ConversionLead;
 use App\Support\DetecteurDoublons;
 use Illuminate\Http\RedirectResponse;
@@ -225,6 +226,9 @@ class LeadController extends Controller
 
             return $lead;
         });
+
+        // §46 : trace de création.
+        Audit::tracer($request->user()->id, Audit::CREATION, 'Lead', $lead->id);
 
         return to_route('leads.index')->with('success', "Lead {$lead->numero} créé.");
     }

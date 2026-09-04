@@ -115,6 +115,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Notifications §36 : production, centre, lu/tout-lu | Oui | Oui | OK | Terminé |
 | Campagnes §12 : liste, fiche ROI (RG-IND-002), création | Oui | Oui | OK | Terminé |
 | Catalogue §28 (Famille/Gamme/Produit, retrait, réactivation §47) | Oui | Oui | OK | Terminé |
+| Audit §46 : journal ajout-seul, tracerChamps, écran de lecture | Oui | Oui | OK | Terminé (socle ; producteurs à étendre) |
 | Authentification | Oui | (kit) | — | À reprendre en Phase 2 |
 
 ## Problèmes / à confirmer

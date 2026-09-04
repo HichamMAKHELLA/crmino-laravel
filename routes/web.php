@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActiviteController;
 use App\Http\Controllers\CampagneController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\JournalController;
 use App\Http\Controllers\CatalogueController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\TacheController;
@@ -53,6 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('catalogue/{produit}/reactiver', [CatalogueController::class, 'reactiver'])->name('catalogue.reactiver');
 
     Route::get('rapports', [RapportController::class, 'index'])->name('rapports.index');
+    Route::get('journal', [JournalController::class, 'index'])->name('journal.index');
 
     Route::post('leads', [LeadController::class, 'store'])->name('leads.store');
 });
