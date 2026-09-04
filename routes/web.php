@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActiviteController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\OpportuniteController;
 use App\Http\Controllers\SocieteController;
@@ -24,6 +25,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('opportunites/{opportunite}', [OpportuniteController::class, 'show'])->name('opportunites.show');
     Route::post('opportunites/{opportunite}/gagner', [OpportuniteController::class, 'gagner'])->name('opportunites.gagner');
     Route::post('opportunites/{opportunite}/perdre', [OpportuniteController::class, 'perdre'])->name('opportunites.perdre');
+
+    Route::post('activites', [ActiviteController::class, 'store'])->name('activites.store');
     Route::post('leads', [LeadController::class, 'store'])->name('leads.store');
 });
 

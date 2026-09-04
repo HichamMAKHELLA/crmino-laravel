@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\Referentiels\TypeActivite;
 use App\Models\Societe;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -49,6 +50,7 @@ class SocieteController extends Controller
             'ville', 'source', 'proprietaire',
             'contacts' => fn ($q) => $q->where('actif', true)->orderByDesc('principal'),
             'contacts.fonction',
+            'activites' => fn ($q) => $q->where('actif', true)->orderByDesc('debut_le')->with(['type:id,libelle', 'utilisateur:id,prenom,nom']),
         ]);
 
         return Inertia::render('Societes/Show', [
@@ -66,6 +68,17 @@ class SocieteController extends Controller
                     ? trim(($societe->proprietaire->prenom ?? '').' '.($societe->proprietaire->nom ?? ''))
                     : null,
             ],
+            'activites' => $societe->activites->map(fn ($a) => [
+                'id' => $a->id,
+                'type' => $a->type?->libelle,
+                'objet' => $a->objet,
+                'resultat' => $a->resultat,
+                'debut_le' => $a->debut_le?->toIso8601String(),
+                'utilisateur' => $a->utilisateur ? trim(($a->utilisateur->prenom ?? '').' '.($a->utilisateur->nom ?? '')) : null,
+                'prochaine_action_le' => $a->prochaine_action_le?->toIso8601String(),
+                'prochaine_action_libelle' => $a->prochaine_action_libelle,
+            ]),
+            'typesActivite' => TypeActivite::query()->where('actif', true)->orderBy('ordre')->get(['id', 'libelle'])->map(fn ($t) => ['id' => $t->id, 'libelle' => $t->libelle]),
             'contacts' => $societe->contacts->map(fn ($c) => [
                 'id' => $c->id,
                 'nom' => trim(($c->prenom ?? '').' '.$c->nom),

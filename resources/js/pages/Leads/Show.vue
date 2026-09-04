@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import FriseActivites from '@/components/FriseActivites.vue';
 import { computed } from 'vue';
 
 interface Lead {
@@ -19,6 +20,13 @@ interface Qualification {
     nb_utilisateurs: number | null; hebergement: string | null;
 }
 
+interface ActiviteLigne {
+    id: number; type: string | null; objet: string | null; resultat: string | null;
+    debut_le: string; utilisateur: string | null;
+    prochaine_action_le: string | null; prochaine_action_libelle: string | null;
+}
+interface TypeActiviteOption { id: number; libelle: string }
+
 const props = defineProps<{
     lead: Lead;
     palier: Palier | null;
@@ -27,6 +35,8 @@ const props = defineProps<{
     converti: boolean;
     societeId: number | null;
     peutConvertir: boolean;
+    activites: ActiviteLigne[];
+    typesActivite: TypeActiviteOption[];
 }>();
 
 const page = usePage();
@@ -183,5 +193,7 @@ defineOptions({
                 Pas encore qualifié.
             </p>
         </section>
+
+        <FriseActivites :cible-type="'lead'" :cible-id="lead.id" :activites="activites" :types="typesActivite" />
     </div>
 </template>

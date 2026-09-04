@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, usePage } from '@inertiajs/vue3';
+import FriseActivites from '@/components/FriseActivites.vue';
 import { computed } from 'vue';
 
 interface Societe {
@@ -12,7 +13,14 @@ interface ContactLigne {
     gsm: string | null; telephone: string | null; email: string | null; principal: boolean;
 }
 
-defineProps<{ societe: Societe; contacts: ContactLigne[] }>();
+interface ActiviteLigne {
+    id: number; type: string | null; objet: string | null; resultat: string | null;
+    debut_le: string; utilisateur: string | null;
+    prochaine_action_le: string | null; prochaine_action_libelle: string | null;
+}
+interface TypeActiviteOption { id: number; libelle: string }
+
+defineProps<{ societe: Societe; contacts: ContactLigne[]; activites: ActiviteLigne[]; typesActivite: TypeActiviteOption[] }>();
 
 const page = usePage();
 const succes = computed(() => (page.props.flash as { success?: string } | undefined)?.success);
@@ -105,5 +113,7 @@ defineOptions({
                 </table>
             </div>
         </section>
+
+        <FriseActivites :cible-type="'societe'" :cible-id="societe.id" :activites="activites" :types="typesActivite" />
     </div>
 </template>

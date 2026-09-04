@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support;
 
+use App\Models\Activite;
 use App\Models\Contact;
 use App\Models\Lead;
 use App\Models\Referentiels\StatutLead;
@@ -22,7 +23,7 @@ use Illuminate\Support\Facades\DB;
 final class ConversionLead
 {
     /**
-     * @return array{societe: Societe, contacts: int}
+     * @return array{societe: Societe, contacts: int, activites: int}
      */
     public function convertir(Lead $lead, ?int $societeExistanteId, User $auteur): array
     {
@@ -33,6 +34,11 @@ final class ConversionLead
 
             // ── La bascule. Aucune ligne n'est recopiée. ──
             $contacts = Contact::query()->where('lead_id', $lead->id)
+                ->update(['societe_id' => $societe->id, 'lead_id' => null]);
+
+            // Les activités suivent (§73 : la frise de la société commencerait
+            // au jour de la conversion si on les oubliait).
+            $activites = Activite::query()->where('lead_id', $lead->id)
                 ->update(['societe_id' => $societe->id, 'lead_id' => null]);
 
             // ── Le lead porte désormais sa marque de conversion (§31). ──
@@ -47,7 +53,7 @@ final class ConversionLead
                 'modifie_par' => $auteur->id,
             ])->save();
 
-            return ['societe' => $societe, 'contacts' => $contacts];
+            return ['societe' => $societe, 'contacts' => $contacts, 'activites' => $activites];
         });
     }
 

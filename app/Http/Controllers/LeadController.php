@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreLeadRequest;
 use App\Models\Lead;
+use App\Models\Referentiels\TypeActivite;
 use App\Models\Referentiels\PalierScore;
 use App\Models\Referentiels\Source;
 use App\Models\Referentiels\StatutLead;
@@ -70,6 +71,7 @@ class LeadController extends Controller
             'statut', 'source', 'ville', 'proprietaire',
             'contacts' => fn ($q) => $q->where('actif', true)->orderByDesc('principal'),
             'contacts.fonction', 'qualification',
+            'activites' => fn ($q) => $q->where('actif', true)->orderByDesc('debut_le')->with(['type:id,libelle', 'utilisateur:id,prenom,nom']),
         ]);
 
         // §15 : le palier se dérive du score. « Non scoré » n'est PAS un zéro.
@@ -111,6 +113,17 @@ class LeadController extends Controller
                 'email' => $c->email,
                 'principal' => $c->principal,
             ]),
+            'activites' => $lead->activites->map(fn ($a) => [
+                'id' => $a->id,
+                'type' => $a->type?->libelle,
+                'objet' => $a->objet,
+                'resultat' => $a->resultat,
+                'debut_le' => $a->debut_le?->toIso8601String(),
+                'utilisateur' => $a->utilisateur ? trim(($a->utilisateur->prenom ?? '').' '.($a->utilisateur->nom ?? '')) : null,
+                'prochaine_action_le' => $a->prochaine_action_le?->toIso8601String(),
+                'prochaine_action_libelle' => $a->prochaine_action_libelle,
+            ]),
+            'typesActivite' => TypeActivite::query()->where('actif', true)->orderBy('ordre')->get(['id', 'libelle'])->map(fn ($t) => ['id' => $t->id, 'libelle' => $t->libelle]),
             'qualification' => $lead->qualification ? [
                 'usage_sage' => $lead->qualification->usage_sage,
                 'version_sage' => $lead->qualification->version_sage,
@@ -142,10 +155,13 @@ class LeadController extends Controller
         $societeExistanteId = $request->integer('societe_existante_id') ?: null;
         $resultat = $conversion->convertir($lead, $societeExistanteId, $request->user());
 
+        $n = $resultat['contacts'] + $resultat['activites'];
+
         return to_route('societes.show', $resultat['societe']->id)
             ->with('success', "Lead converti — société {$resultat['societe']->numero} créée. "
-                ."{$resultat['contacts']} contact".($resultat['contacts'] > 1 ? 's' : '').' basculé'
-                .($resultat['contacts'] > 1 ? 's' : '').'.');
+                ."{$resultat['contacts']} contact".($resultat['contacts'] > 1 ? 's' : '')
+                .", {$resultat['activites']} activité".($resultat['activites'] > 1 ? 's' : '')
+                .' basculé'.($n > 1 ? 's' : '').'.');
     }
 
     public function store(StoreLeadRequest $request, DetecteurDoublons $detecteur): RedirectResponse

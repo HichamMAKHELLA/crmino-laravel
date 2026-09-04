@@ -118,4 +118,9 @@ class Lead extends Model
     {
         return $this->hasOne(QualificationLead::class, 'lead_id');
     }
+
+    public function activites(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Activite::class);
+    }
 }
