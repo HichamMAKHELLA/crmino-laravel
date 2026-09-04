@@ -29,6 +29,10 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
+            // Un compte CRMino est actif par défaut (port de DF_Util_Actif). Sans
+            // cette valeur, l'instance fraîche porte actif=null et porteePour la
+            // traiterait comme inactive (refus) avant tout re-fetch.
+            'actif' => true,
             'remember_token' => Str::random(10),
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,

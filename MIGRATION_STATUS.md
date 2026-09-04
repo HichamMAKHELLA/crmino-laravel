@@ -20,8 +20,11 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
   enum `Portee`, résolution `User::porteePour/peut`, trait `AvecPerimetre`
   (`scopeDansPerimetre`, port de `ClausePerimetre`). Seed des 4 rôles socles.
   **12 tests, filet RG-HAB-001 prouvé par mutation** (4 chutes).
-  Reste sur cette phase : catalogue des 53 permissions + matrice §78, réconcilier
-  l'inscription du kit avec le §5 (comptes créés par un admin, rôle obligatoire).
+  Catalogue des **53 permissions** + **matrice §78** (calculée par ensembles) +
+  §72 (dossier = ADMIN seul) + §68 (8 permissions éteintes) : fait, avec la
+  résolution de bout en bout où le §68 prime (prouvé par mutation).
+  Reste sur cette phase : réconcilier l'inscription du kit avec le §5 (comptes
+  créés par un admin, rôle obligatoire, pas d'auto-inscription).
 
 ## À faire — par phases (§30)
 | Phase | Module | État |
@@ -46,7 +49,8 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Rôles + équipes (schéma) | Oui | Oui | OK | Terminé |
 | Résolution de portée (`porteePour`) | Oui | Oui | OK | Terminé |
 | Périmètre par ligne (`scopeDansPerimetre`, RG-HAB-001) | Oui | Oui | OK | Terminé |
-| Catalogue permissions + matrice §78 | Oui | Non | — | À faire |
+| Catalogue permissions (53) + matrice §78 | Oui | Oui | OK | Terminé |
+| Extinction §68 + dossier §72 | Oui | Oui | OK | Terminé |
 | Authentification | Oui | (kit) | — | À reprendre en Phase 2 |
 
 ## Problèmes / à confirmer

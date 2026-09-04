@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -15,11 +16,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Rôles, permissions et matrice du §78 — socle de sécurité.
+        $this->call(SecuriteSeeder::class);
 
+        // Compte administrateur de développement (local uniquement).
         User::factory()->create([
             'name' => 'Test User',
+            'prenom' => 'Test',
+            'nom' => 'User',
             'email' => 'test@example.com',
+            'role_id' => Role::query()->where('code', 'ADMIN')->value('id'),
         ]);
     }
 }
