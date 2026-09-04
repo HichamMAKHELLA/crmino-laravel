@@ -56,6 +56,34 @@ it('§38 — les motifs de perte, groupés et datés sur la clôture', function 
         });
 });
 
+it('§39 — l entonnoir compte des LEADS, contactés >= rendez-vous', function () {
+    $this->withoutVite();
+    $appel = \App\Models\Referentiels\TypeActivite::query()->where('code', 'APPEL')->value('id');
+    $reunion = \App\Models\Referentiels\TypeActivite::query()->where('categorie', 'Rdv')->value('id');
+
+    // L1 : contacté (un appel). L2 : contacté + rendez-vous (une réunion).
+    $l1 = \App\Models\Lead::factory()->create(['proprietaire_id' => $this->u->id]);
+    \App\Models\Activite::factory()->create(['lead_id' => $l1->id, 'type_id' => $appel, 'utilisateur_id' => $this->u->id]);
+    $l2 = \App\Models\Lead::factory()->create(['proprietaire_id' => $this->u->id]);
+    \App\Models\Activite::factory()->create(['lead_id' => $l2->id, 'type_id' => $reunion, 'utilisateur_id' => $this->u->id]);
+    // L3 : converti (aucune activité). L4 : rien.
+    $soc = Societe::factory()->create(['proprietaire_id' => $this->u->id]);
+    \App\Models\Lead::factory()->create(['proprietaire_id' => $this->u->id, 'societe_id' => $soc->id, 'converti_le' => now(), 'converti_par' => $this->u->id]);
+    \App\Models\Lead::factory()->create(['proprietaire_id' => $this->u->id]);
+
+    $this->actingAs($this->u)->get('/rapports?onglet=entonnoir')
+        ->assertInertia(function (AssertableInertia $p) {
+            $e = collect($p->toArray()['props']['entonnoir'])->keyBy('palier');
+            expect($e['Leads affectés']['nb'])->toBe(4);
+            expect($e['Contactés']['nb'])->toBe(2);   // L1, L2
+            expect($e['Rendez-vous']['nb'])->toBe(1);  // L2
+            expect($e['Convertis']['nb'])->toBe(1);    // L3
+            // Invariant : affectés >= contactés >= rendez-vous.
+            expect($e['Leads affectés']['nb'])->toBeGreaterThanOrEqual($e['Contactés']['nb']);
+            expect($e['Contactés']['nb'])->toBeGreaterThanOrEqual($e['Rendez-vous']['nb']);
+        });
+});
+
 it('l onglet vit dans l adresse et retombe sur le prévisionnel', function () {
     $this->withoutVite();
     $this->actingAs($this->u)->get('/rapports?onglet=inconnu')

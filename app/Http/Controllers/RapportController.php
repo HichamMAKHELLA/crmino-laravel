@@ -20,7 +20,7 @@ class RapportController extends Controller
     {
         abort_unless($request->user()->peut('rapport.consulter'), 403);
 
-        $onglet = in_array($request->query('onglet'), ['previsionnel', 'motifs'], true)
+        $onglet = in_array($request->query('onglet'), ['previsionnel', 'motifs', 'entonnoir'], true)
             ? $request->query('onglet') : 'previsionnel';
 
         return Inertia::render('Rapports/Index', [
@@ -29,7 +29,34 @@ class RapportController extends Controller
             'au' => $request->query('au'),
             'previsionnel' => $onglet === 'previsionnel' ? $this->previsionnel($request) : null,
             'motifs' => $onglet === 'motifs' ? $this->motifs($request) : null,
+            'entonnoir' => $onglet === 'entonnoir' ? $this->entonnoir($request) : null,
         ]);
+    }
+
+    /**
+     * §39 : l'entonnoir de conversion. Compte des LEADS (jamais des réunions),
+     * si bien que chaque palier est un sous-ensemble du précédent :
+     * affectés >= contactés >= rendez-vous. « Contacté » = au moins une activité ;
+     * « rendez-vous » se lit sur ref.TypeActivite.categorie = 'Rdv', jamais un code.
+     */
+    private function entonnoir(Request $request): array
+    {
+        $base = fn () => \App\Models\Lead::query()
+            ->dansPerimetre($request->user(), 'lead.consulter')
+            ->where('actif', true);
+
+        $affectes = $base()->count();
+        $contactes = $base()->whereHas('activites', fn ($a) => $a->where('actif', true))->count();
+        $rdv = $base()->whereHas('activites', fn ($a) => $a->where('actif', true)
+            ->whereHas('type', fn ($t) => $t->where('categorie', 'Rdv')))->count();
+        $convertis = $base()->whereNotNull('societe_id')->count();
+
+        return [
+            ['palier' => 'Leads affectés', 'nb' => $affectes],
+            ['palier' => 'Contactés', 'nb' => $contactes],
+            ['palier' => 'Rendez-vous', 'nb' => $rdv],
+            ['palier' => 'Convertis', 'nb' => $convertis],
+        ];
     }
 
     /** §75 : le prévisionnel par étape, avec la probabilité EFFECTIVE (pondéré/montant). */

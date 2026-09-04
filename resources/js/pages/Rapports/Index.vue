@@ -6,6 +6,7 @@ interface LignePrev {
     etape: string; nb: number; montant: number; pondere: number; probabilite_effective: number | null;
 }
 interface LigneMotif { motif: string; nb: number; montant: number }
+interface LigneEntonnoir { palier: string; nb: number }
 
 const props = defineProps<{
     onglet: string;
@@ -13,6 +14,7 @@ const props = defineProps<{
     au: string | null;
     previsionnel: LignePrev[] | null;
     motifs: LigneMotif[] | null;
+    entonnoir: LigneEntonnoir[] | null;
 }>();
 
 const mad = new Intl.NumberFormat('fr-MA', { style: 'currency', currency: 'MAD', maximumFractionDigits: 0 });
@@ -51,6 +53,13 @@ defineOptions({ layout: { breadcrumbs: [{ title: 'Rapports', href: '/rapports' }
                 :class="onglet === 'motifs' ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground'"
             >
                 Motifs de perte (§38)
+            </Link>
+            <Link
+                href="/rapports?onglet=entonnoir"
+                class="rounded-t-md px-4 py-2 text-sm font-medium"
+                :class="onglet === 'entonnoir' ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground'"
+            >
+                Entonnoir (§39)
             </Link>
         </div>
 
@@ -91,7 +100,7 @@ defineOptions({ layout: { breadcrumbs: [{ title: 'Rapports', href: '/rapports' }
         </div>
 
         <!-- §38 : motifs de perte -->
-        <div v-else class="flex flex-col gap-3">
+        <div v-else-if="onglet === 'motifs'" class="flex flex-col gap-3">
             <div class="flex flex-wrap items-end gap-3">
                 <label class="flex flex-col gap-1 text-sm">
                     <span class="text-xs text-muted-foreground">Du</span>
@@ -127,6 +136,27 @@ defineOptions({ layout: { breadcrumbs: [{ title: 'Rapports', href: '/rapports' }
                     </tbody>
                 </table>
             </div>
+        </div>
+
+        <!-- §39 : entonnoir de conversion. Chaque palier <= le précédent. -->
+        <div v-if="onglet === 'entonnoir'" class="flex flex-col gap-3">
+            <div v-for="(l, i) in (entonnoir ?? [])" :key="l.palier" class="flex items-center gap-3">
+                <span class="w-32 shrink-0 text-sm">{{ l.palier }}</span>
+                <div class="h-8 flex-1 overflow-hidden rounded-md bg-muted">
+                    <div
+                        class="flex h-full items-center rounded-md bg-primary px-2 text-xs font-medium text-primary-foreground"
+                        :style="{ width: ((entonnoir?.[0]?.nb ? l.nb / entonnoir[0].nb : 0) * 100) + '%', minWidth: l.nb > 0 ? '2rem' : '0' }"
+                    >
+                        {{ l.nb }}
+                    </div>
+                </div>
+                <span v-if="i > 0 && (entonnoir?.[0]?.nb ?? 0) > 0" class="w-14 shrink-0 text-right text-xs text-muted-foreground">
+                    {{ Math.round((l.nb / (entonnoir?.[0]?.nb || 1)) * 100) }} %
+                </span>
+            </div>
+            <p v-if="(entonnoir?.[0]?.nb ?? 0) === 0" class="rounded-xl border border-dashed border-sidebar-border/70 p-6 text-center text-sm text-muted-foreground dark:border-sidebar-border">
+                Aucun lead sur la période.
+            </p>
         </div>
     </div>
 </template>
