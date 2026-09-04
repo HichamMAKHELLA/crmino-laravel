@@ -9,6 +9,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
 
     Route::get('leads', [LeadController::class, 'index'])->name('leads.index');
+    Route::post('leads', [LeadController::class, 'store'])->name('leads.store');
 });
 
 require __DIR__.'/settings.php';

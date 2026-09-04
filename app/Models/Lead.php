@@ -108,4 +108,9 @@ class Lead extends Model
     {
         return $this->belongsTo(Equipe::class);
     }
+
+    public function contacts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Contact::class);
+    }
 }

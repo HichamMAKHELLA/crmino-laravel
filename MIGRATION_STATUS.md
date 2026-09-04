@@ -43,6 +43,17 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
   domaine exact et raison sociale EN PRÉFIXE, dédup par critère le plus fort.
   19 tests, 2 mutations à l'appui. **Téléphone et courriel passent par le
   Contact (§6)** — leurs branches arriveront avec la table `contacts`.
+- **Phase 5/3 (création d'un lead) — fait.** Table `contacts` avancée (§6 en
+  partie) : rattachement lead OU société (CHECK), `telephone_normalise` /
+  `gsm_normalise` recalculés à l'écriture. `DetecteurDoublons` complété — branches
+  téléphone et courriel via les contacts. `ReglesLead::controlerDonneesMinimales`
+  (RG-LEA-001), `StoreLeadRequest`, `LeadController@store` : contrôle de doublon
+  AVANT écriture, doctrine §41/§71 « on montre, créer quand même reste possible »,
+  et la vérification en panne ne bloque PAS la création. Le contact n'est créé
+  que s'il porte un nom. 10 tests, 3 mutations (RG-LEA-001, garde de panne,
+  contact-si-nom). **Écart noté** : `domaine_web` du lead se calcule à partir du
+  seul `site_web` (le .NET ajoute un repli sur le courriel du contact) ; la
+  détection fait déjà ce repli au moment de la requête.
 
 ## À faire — par phases (§30)
 | Phase | Module | État |
@@ -51,7 +62,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | 2 | Auth locale (session) + `RG-AUTH` (verrou anti-force) | À faire |
 | 3 | Rôles + périmètre (`PerimetreScope`, `RG-HAB-*`) | **Tranche 1 faite** (identité, portée, scope) ; reste permissions + matrice §78 |
 | 4 | Référentiels administrables (§50, `RG-REF-*`) | **Tranches 1-2 faites** (8 auto-contenus + géographique + fonctions) ; reste score, besoins, catalogue, alertes |
-| 5 | Leads + doublons + qualification + score (`RG-LEA-*`, `RG-DOU`, `RG-IND`) | **Tranches 1-2 faites** (table, périmètre prouvé, numérotation, écran Inertia, doublons §41) ; reste qualification, score, création/édition |
+| 5 | Leads + doublons + qualification + score (`RG-LEA-*`, `RG-DOU`, `RG-IND`) | **Tranches 1-2 faites** (table, périmètre prouvé, numérotation, écran Inertia, doublons §41) ; reste qualification, score, édition |
 | 6 | Sociétés + contacts + conversion (`RG-SOC`, §31) | À faire |
 | 7 | Opportunités + lignes + pipeline (`RG-OPP-001..007`) | À faire |
 | 8 | Activités, tâches, notifications, campagnes, catalogue | À faire |
@@ -77,6 +88,9 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Leads : écran liste (Inertia + Policy) | Oui | Oui | OK | Terminé |
 | Normalisation §41 (Texte, Doublons : raison sociale, téléphone, domaine) | Oui | Oui | OK | Terminé |
 | Détection de doublons §41 (ICE / domaine / raison en préfixe) — leads | Oui | Oui | OK | Terminé (tél./courriel → Contact §6) |
+| Contacts : table + normalisation §41 (téléphone) | Oui | Oui | OK | Terminé (société §6 différée) |
+| Détection §41 complète (ICE/tél./courriel/domaine/raison) | Oui | Oui | OK | Terminé |
+| Création d'un lead (RG-LEA-001, doublons, contact principal) | Oui | Oui | OK | Terminé |
 | Leads : qualification §13 / score §15 | Oui | Non | — | À faire |
 | Authentification | Oui | (kit) | — | À reprendre en Phase 2 |
 
