@@ -64,7 +64,7 @@ defineOptions({
                 </thead>
                 <tbody>
                     <tr v-for="lead in leads.data" :key="lead.id" class="border-t border-sidebar-border/50">
-                        <td class="px-4 py-2 font-mono text-xs">{{ lead.numero }}</td>
+                        <td class="px-4 py-2 font-mono text-xs"><Link :href="`/leads/${lead.id}`" class="text-primary hover:underline">{{ lead.numero }}</Link></td>
                         <td class="px-4 py-2">{{ lead.raison_sociale ?? '—' }}</td>
                         <td class="px-4 py-2">{{ lead.statut ?? '—' }}</td>
                         <td class="px-4 py-2">{{ lead.ville ?? '—' }}</td>

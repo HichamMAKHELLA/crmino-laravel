@@ -62,7 +62,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | 2 | Auth locale (session) + `RG-AUTH` (verrou anti-force) | À faire |
 | 3 | Rôles + périmètre (`PerimetreScope`, `RG-HAB-*`) | **Tranche 1 faite** (identité, portée, scope) ; reste permissions + matrice §78 |
 | 4 | Référentiels administrables (§50, `RG-REF-*`) | **Tranches 1-2 faites** (8 auto-contenus + géographique + fonctions) ; reste score, besoins, catalogue, alertes |
-| 5 | Leads + doublons + qualification + score (`RG-LEA-*`, `RG-DOU`, `RG-IND`) | **Tranches 1-2 faites** (table, périmètre prouvé, numérotation, écran Inertia, doublons §41) ; reste qualification, score, édition |
+| 5 | Leads + doublons + qualification + score (`RG-LEA-*`, `RG-DOU`, `RG-IND`) | **Tranches 1-2 faites** (table, périmètre prouvé, numérotation, écran Inertia, doublons §41) ; reste édition qualif./score, suggestion de score |
 | 6 | Sociétés + contacts + conversion (`RG-SOC`, §31) | À faire |
 | 7 | Opportunités + lignes + pipeline (`RG-OPP-001..007`) | À faire |
 | 8 | Activités, tâches, notifications, campagnes, catalogue | À faire |
@@ -92,6 +92,10 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Détection §41 complète (ICE/tél./courriel/domaine/raison) | Oui | Oui | OK | Terminé |
 | Création d'un lead (RG-LEA-001, doublons, contact principal) | Oui | Oui | OK | Terminé |
 | Écran de création + panneau de doublons « Créer quand même » | Oui | Oui | Navigateur | Terminé |
+| Paliers de score §15 (Froid/Tiède/Chaud/Très chaud, bornes) | Oui | Oui | OK | Terminé |
+| Qualification §13 (satellite 1-1) — lecture | Oui | Oui | OK | Terminé |
+| Fiche 360° du lead (§58, palier, contacts, qualif) | Oui | Oui | Navigateur | Terminé |
+| Édition qualification §13 + score §15 (écriture, suggestion) | Oui | Non | — | À faire |
 | Leads : qualification §13 / score §15 | Oui | Non | — | À faire |
 | Authentification | Oui | (kit) | — | À reprendre en Phase 2 |
 

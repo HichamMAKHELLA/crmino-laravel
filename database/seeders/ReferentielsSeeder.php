@@ -141,6 +141,15 @@ class ReferentielsSeeder extends Seeder
             ['MAUVAISE_QUALIF', 'Mauvaise qualification', true, 110, false],
             ['AUTRE', 'Autre', true, 999, true],
         ]);
+
+        // Paliers de score (§15) — bornes porteuses de comportement.
+        $this->upsert('palier_scores',
+            ['code', 'libelle', 'borne_min', 'borne_max', 'couleur', 'ordre', 'systeme'], [
+                ['FROID', 'Froid', 0, 30, '#666666', 10, true],
+                ['TIEDE', 'Tiède', 31, 60, '#E0A020', 20, true],
+                ['CHAUD', 'Chaud', 61, 80, '#007AA8', 30, true],
+                ['TRES_CHAUD', 'Très chaud', 81, 100, '#D64545', 40, true],
+            ]);
     }
 
     /** Référentiel de forme commune : [code, libellé, ordre, systeme]. */

@@ -10,6 +10,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('leads', [LeadController::class, 'index'])->name('leads.index');
     Route::get('leads/create', [LeadController::class, 'create'])->name('leads.create');
+    Route::get('leads/{lead}', [LeadController::class, 'show'])->name('leads.show');
     Route::post('leads', [LeadController::class, 'store'])->name('leads.store');
 });
 
