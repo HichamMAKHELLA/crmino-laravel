@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { Building2, BookOpen, FolderGit2, LayoutGrid, ListChecks, Target, Users } from '@lucide/vue';
+import { Building2, BookOpen, FolderGit2, LayoutGrid, ListChecks, Megaphone, Target, Users } from '@lucide/vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -43,6 +43,11 @@ const mainNavItems: NavItem[] = [
         title: 'Tâches',
         href: '/taches',
         icon: ListChecks,
+    },
+    {
+        title: 'Campagnes',
+        href: '/campagnes',
+        icon: Megaphone,
     },
 ];
 

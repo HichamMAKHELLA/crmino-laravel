@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActiviteController;
+use App\Http\Controllers\CampagneController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\TacheController;
 use App\Http\Controllers\LeadController;
@@ -36,6 +37,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('notifications/{notification}/lu', [NotificationController::class, 'lu'])->name('notifications.lu');
     Route::post('notifications/tout-lu', [NotificationController::class, 'toutLu'])->name('notifications.tout-lu');
+
+    Route::get('campagnes', [CampagneController::class, 'index'])->name('campagnes.index');
+    Route::get('campagnes/create', [CampagneController::class, 'create'])->name('campagnes.create');
+    Route::post('campagnes', [CampagneController::class, 'store'])->name('campagnes.store');
+    Route::get('campagnes/{campagne}', [CampagneController::class, 'show'])->name('campagnes.show');
 
     Route::post('leads', [LeadController::class, 'store'])->name('leads.store');
 });

@@ -150,6 +150,18 @@ class ReferentielsSeeder extends Seeder
                 ['CHAUD', 'Chaud', 61, 80, '#007AA8', 30, true],
                 ['TRES_CHAUD', 'Très chaud', 81, 100, '#D64545', 40, true],
             ]);
+
+        // Types de campagne (§12) — forme commune.
+        $this->commun('types_campagne', [
+            ['EMAILING', 'Emailing', 10, true],
+            ['TELEPHONE', 'Campagne téléphonique', 20, true],
+            ['SALON', 'Salon', 30, false],
+            ['WEBINAIRE', 'Webinaire', 40, false],
+            ['RESEAUX', 'Réseaux sociaux', 50, false],
+            ['PARTENAIRE', 'Co-marketing partenaire', 60, false],
+            ['TERRAIN', 'Prospection terrain', 70, false],
+            ['AUTRE', 'Autre', 999, true],
+        ]);
     }
 
     /** Référentiel de forme commune : [code, libellé, ordre, systeme]. */
