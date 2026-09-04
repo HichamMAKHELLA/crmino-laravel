@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActiviteController;
+use App\Http\Controllers\TacheController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\OpportuniteController;
 use App\Http\Controllers\SocieteController;
@@ -27,6 +28,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('opportunites/{opportunite}/perdre', [OpportuniteController::class, 'perdre'])->name('opportunites.perdre');
 
     Route::post('activites', [ActiviteController::class, 'store'])->name('activites.store');
+
+    Route::get('taches', [TacheController::class, 'index'])->name('taches.index');
+    Route::post('taches', [TacheController::class, 'store'])->name('taches.store');
+    Route::post('taches/{tache}/terminer', [TacheController::class, 'terminer'])->name('taches.terminer');
     Route::post('leads', [LeadController::class, 'store'])->name('leads.store');
 });
 
