@@ -12,6 +12,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 - **Phase 0 — Socle.** Laravel 13 + kit Vue (Inertia/Vue/shadcn-vue/TS) + Pest +
   MySQL. Toolchain via Herd (PHP 8.4, Composer 2.10). **39 tests du kit verts.**
 - Registre de décisions (`docs/architecture-decisions.md`, ADR-001 à 005).
+- **Environnement DB** : MariaDB 12.3 (winget), base `crmino_laravel` utf8mb4, migrations par défaut appliquées. Base NEUVE (pas de reprise de données).
 
 ## En cours
 - Rien (attente du feu vert pour la Phase 1).
