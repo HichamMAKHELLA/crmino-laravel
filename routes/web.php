@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ActiviteController;
 use App\Http\Controllers\CampagneController;
+use App\Http\Controllers\CatalogueController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\TacheController;
 use App\Http\Controllers\LeadController;
@@ -42,6 +43,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('campagnes/create', [CampagneController::class, 'create'])->name('campagnes.create');
     Route::post('campagnes', [CampagneController::class, 'store'])->name('campagnes.store');
     Route::get('campagnes/{campagne}', [CampagneController::class, 'show'])->name('campagnes.show');
+
+    Route::get('catalogue', [CatalogueController::class, 'index'])->name('catalogue.index');
+    Route::get('catalogue/create', [CatalogueController::class, 'create'])->name('catalogue.create');
+    Route::post('catalogue', [CatalogueController::class, 'store'])->name('catalogue.store');
+    Route::post('catalogue/{produit}/desactiver', [CatalogueController::class, 'desactiver'])->name('catalogue.desactiver');
+    Route::post('catalogue/{produit}/reactiver', [CatalogueController::class, 'reactiver'])->name('catalogue.reactiver');
 
     Route::post('leads', [LeadController::class, 'store'])->name('leads.store');
 });

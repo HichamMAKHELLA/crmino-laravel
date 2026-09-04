@@ -65,7 +65,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | 5 | Leads + doublons + qualification + score (`RG-LEA-*`, `RG-DOU`, `RG-IND`) | **Tranches 1-2 faites** (table, périmètre prouvé, numérotation, écran Inertia, doublons §41) ; reste édition qualif./score, suggestion de score |
 | 6 | Sociétés + contacts + conversion (`RG-SOC`, §31) | **Tranches 1-2 faites** (table, périmètre, liste, conversion §31 avec bascule des contacts, fiches lead/société) ; reste bascule activités/tâches/documents (§8), état §32, édition |
 | 7 | Opportunités + lignes + pipeline (`RG-OPP-001..007`) | **Tranches 1-2 faites** (pondéré généré, création, board, fiche, clôture gain/perte RG-OPP-002/003/005) ; reste glisser-déposer §64, lignes §28 |
-| 8 | Activités, tâches, notifications, campagnes, catalogue | **Tranches 1-4 faites** (activités, tâches, notifications, campagnes §12) ; reste catalogue §28 |
+| 8 | Activités, tâches, notifications, campagnes, catalogue | **Terminée** (activités, tâches, notifications, campagnes, catalogue §28 + §47) |
 | 9 | Jobs/planif (`--notifier` → Scheduler/Queue) + Outbox Sage | À faire |
 | 10 | Rapports, tableaux de bord, import Excel, droit d'accès (§72) | À faire |
 | 11 | Tests de parité Pest + Vitest | À faire |
@@ -114,7 +114,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Tâches §20/§21 : « Mes tâches », tri, terminaison | Oui | Oui | OK | Terminé |
 | Notifications §36 : production, centre, lu/tout-lu | Oui | Oui | OK | Terminé |
 | Campagnes §12 : liste, fiche ROI (RG-IND-002), création | Oui | Oui | OK | Terminé |
-| Catalogue §28 | Oui | Non | — | À faire |
+| Catalogue §28 (Famille/Gamme/Produit, retrait, réactivation §47) | Oui | Oui | OK | Terminé |
 | Authentification | Oui | (kit) | — | À reprendre en Phase 2 |
 
 ## Problèmes / à confirmer

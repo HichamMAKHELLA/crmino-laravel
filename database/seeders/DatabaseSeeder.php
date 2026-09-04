@@ -25,6 +25,9 @@ class DatabaseSeeder extends Seeder
         // Géographie (pays -> régions -> villes) + fonctions de contact.
         $this->call(ReferentielsGeoSeeder::class);
 
+        // Catalogue de démonstration (§28).
+        $this->call(CatalogueSeeder::class);
+
         // Compte administrateur de développement (local uniquement).
         User::factory()->create([
             'name' => 'Test User',
