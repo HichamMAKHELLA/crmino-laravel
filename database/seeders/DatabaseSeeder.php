@@ -22,6 +22,9 @@ class DatabaseSeeder extends Seeder
         // Référentiels auto-contenus (sources, statuts, étapes, motifs…).
         $this->call(ReferentielsSeeder::class);
 
+        // Géographie (pays -> régions -> villes) + fonctions de contact.
+        $this->call(ReferentielsGeoSeeder::class);
+
         // Compte administrateur de développement (local uniquement).
         User::factory()->create([
             'name' => 'Test User',
