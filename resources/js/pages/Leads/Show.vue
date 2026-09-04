@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 interface Lead {
@@ -24,7 +24,19 @@ const props = defineProps<{
     palier: Palier | null;
     contacts: ContactLigne[];
     qualification: Qualification | null;
+    converti: boolean;
+    societeId: number | null;
+    peutConvertir: boolean;
 }>();
+
+const page = usePage();
+const erreur = computed(() => (page.props.flash as { error?: string } | undefined)?.error);
+
+function convertir() {
+    if (confirm('Convertir ce lead en société ? Les contacts basculeront vers la société.')) {
+        router.post(`/leads/${props.lead.id}/convertir`);
+    }
+}
 
 const titre = computed(() => props.lead.raison_sociale ?? props.lead.numero);
 
@@ -46,6 +58,21 @@ defineOptions({
     <Head :title="titre" />
 
     <div class="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4">
+        <div v-if="erreur" class="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {{ erreur }}
+        </div>
+
+        <!-- RG-LEA-003 : un lead converti renvoie vers sa société. -->
+        <div
+            v-if="converti"
+            class="flex items-center justify-between rounded-md border border-primary/30 bg-primary/5 px-4 py-3 text-sm"
+        >
+            <span>Ce lead est converti.</span>
+            <Link :href="`/societes/${societeId}`" class="font-medium text-primary hover:underline">
+                Voir la société →
+            </Link>
+        </div>
+
         <!-- En-tête -->
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
@@ -72,6 +99,16 @@ defineOptions({
                     <p class="text-xs text-muted-foreground">à qualifier</p>
                 </template>
             </div>
+        </div>
+
+        <div v-if="!converti && peutConvertir">
+            <button
+                type="button"
+                class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+                @click="convertir"
+            >
+                Convertir en société
+            </button>
         </div>
 
         <!-- Résumé -->

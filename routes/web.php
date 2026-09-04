@@ -12,8 +12,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('leads', [LeadController::class, 'index'])->name('leads.index');
     Route::get('leads/create', [LeadController::class, 'create'])->name('leads.create');
     Route::get('leads/{lead}', [LeadController::class, 'show'])->name('leads.show');
+    Route::post('leads/{lead}/convertir', [LeadController::class, 'convertir'])->name('leads.convertir');
 
     Route::get('societes', [SocieteController::class, 'index'])->name('societes.index');
+    Route::get('societes/{societe}', [SocieteController::class, 'show'])->name('societes.show');
     Route::post('leads', [LeadController::class, 'store'])->name('leads.store');
 });
 

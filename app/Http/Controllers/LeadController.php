@@ -9,6 +9,7 @@ use App\Models\Lead;
 use App\Models\Referentiels\PalierScore;
 use App\Models\Referentiels\Source;
 use App\Models\Referentiels\StatutLead;
+use App\Support\ConversionLead;
 use App\Support\DetecteurDoublons;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -75,6 +76,11 @@ class LeadController extends Controller
         $palier = $lead->score !== null ? PalierScore::pour($lead->score) : null;
 
         return Inertia::render('Leads/Show', [
+            // RG-LEA-003 : un lead converti ne se modifie ni ne se reconvertit ;
+            // la fiche renvoie vers la société issue du lead.
+            'converti' => $lead->societe_id !== null,
+            'societeId' => $lead->societe_id,
+            'peutConvertir' => $request->user()->peut('lead.convertir'),
             'lead' => [
                 'id' => $lead->id,
                 'numero' => $lead->numero,
@@ -115,6 +121,31 @@ class LeadController extends Controller
                 'hebergement' => $lead->qualification->hebergement,
             ] : null,
         ]);
+    }
+
+    public function convertir(Request $request, Lead $lead, ConversionLead $conversion): RedirectResponse
+    {
+        abort_unless($request->user()->peut('lead.convertir'), 403);
+
+        // §58 : hors périmètre -> 404, jamais 403.
+        abort_unless(
+            Lead::query()->whereKey($lead->id)
+                ->dansPerimetre($request->user(), 'lead.convertir')->exists(),
+            404,
+        );
+
+        // RG-LEA-003 : un lead déjà converti ne se reconvertit pas.
+        if ($lead->societe_id !== null) {
+            return back()->with('error', 'RG-LEA-003 : ce lead est déjà converti.');
+        }
+
+        $societeExistanteId = $request->integer('societe_existante_id') ?: null;
+        $resultat = $conversion->convertir($lead, $societeExistanteId, $request->user());
+
+        return to_route('societes.show', $resultat['societe']->id)
+            ->with('success', "Lead converti — société {$resultat['societe']->numero} créée. "
+                ."{$resultat['contacts']} contact".($resultat['contacts'] > 1 ? 's' : '').' basculé'
+                .($resultat['contacts'] > 1 ? 's' : '').'.');
     }
 
     public function store(StoreLeadRequest $request, DetecteurDoublons $detecteur): RedirectResponse

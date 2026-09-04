@@ -33,4 +33,48 @@ class SocieteController extends Controller
 
         return Inertia::render('Societes/Index', ['societes' => $societes]);
     }
+
+    public function show(Request $request, Societe $societe): Response
+    {
+        abort_unless($request->user()->peut('societe.consulter'), 403);
+
+        // §58 : une fiche hors périmètre rend 404, jamais 403.
+        abort_unless(
+            Societe::query()->whereKey($societe->id)
+                ->dansPerimetre($request->user(), 'societe.consulter')->exists(),
+            404,
+        );
+
+        $societe->load([
+            'ville', 'source', 'proprietaire',
+            'contacts' => fn ($q) => $q->where('actif', true)->orderByDesc('principal'),
+            'contacts.fonction',
+        ]);
+
+        return Inertia::render('Societes/Show', [
+            'societe' => [
+                'id' => $societe->id,
+                'numero' => $societe->numero,
+                'raison_sociale' => $societe->raison_sociale,
+                'etat' => $societe->etat,
+                'ice' => $societe->ice,
+                'site_web' => $societe->site_web,
+                'ville' => $societe->ville?->libelle,
+                'source' => $societe->source?->libelle,
+                'devenu_client_le' => $societe->devenu_client_le?->format('Y-m-d'),
+                'proprietaire' => $societe->proprietaire
+                    ? trim(($societe->proprietaire->prenom ?? '').' '.($societe->proprietaire->nom ?? ''))
+                    : null,
+            ],
+            'contacts' => $societe->contacts->map(fn ($c) => [
+                'id' => $c->id,
+                'nom' => trim(($c->prenom ?? '').' '.$c->nom),
+                'fonction' => $c->fonction?->libelle ?? $c->fonction_libre,
+                'gsm' => $c->gsm,
+                'telephone' => $c->telephone,
+                'email' => $c->email,
+                'principal' => $c->principal,
+            ]),
+        ]);
+    }
 }
