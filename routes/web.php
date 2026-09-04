@@ -8,6 +8,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\TacheController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\OpportuniteController;
+use App\Http\Controllers\RapportController;
 use App\Http\Controllers\SocieteController;
 use Illuminate\Support\Facades\Route;
 
@@ -50,6 +51,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('catalogue', [CatalogueController::class, 'store'])->name('catalogue.store');
     Route::post('catalogue/{produit}/desactiver', [CatalogueController::class, 'desactiver'])->name('catalogue.desactiver');
     Route::post('catalogue/{produit}/reactiver', [CatalogueController::class, 'reactiver'])->name('catalogue.reactiver');
+
+    Route::get('rapports', [RapportController::class, 'index'])->name('rapports.index');
 
     Route::post('leads', [LeadController::class, 'store'])->name('leads.store');
 });
