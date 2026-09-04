@@ -1,0 +1,49 @@
+# Migration CRMino .NET → Laravel + Inertia + Vue
+
+Référence de parité : le dépôt **CRMino .NET** (ASP.NET Core 10 + Dapper + SQL
+Server + React). Cible : **Laravel 13 + Inertia + Vue 3 + MySQL**. Décisions
+structurantes : voir `docs/architecture-decisions.md`.
+
+Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêtes SQL),
+**17 fichiers de règles** (`Domain/`), **31 règles `RG-*`**, **58 tables**,
+**25 pages** + **62 composants** React, **~1 667 tests**.
+
+## Terminé
+- **Phase 0 — Socle.** Laravel 13 + kit Vue (Inertia/Vue/shadcn-vue/TS) + Pest +
+  MySQL. Toolchain via Herd (PHP 8.4, Composer 2.10). **39 tests du kit verts.**
+- Registre de décisions (`docs/architecture-decisions.md`, ADR-001 à 005).
+
+## En cours
+- Rien (attente du feu vert pour la Phase 1).
+
+## À faire — par phases (§30)
+| Phase | Module | État |
+|---|---|---|
+| 1 | Schéma (58 tables) + seeds des 25 référentiels + portage des garanties SQL Server (ADR-001) | À faire |
+| 2 | Auth locale (session) + `RG-AUTH` (verrou anti-force) | À faire |
+| 3 | Rôles + périmètre (`PerimetreScope`, `RG-HAB-*`) | À faire |
+| 4 | Référentiels administrables (§50, `RG-REF-*`) | À faire |
+| 5 | Leads + doublons + qualification + score (`RG-LEA-*`, `RG-DOU`, `RG-IND`) | À faire |
+| 6 | Sociétés + contacts + conversion (`RG-SOC`, §31) | À faire |
+| 7 | Opportunités + lignes + pipeline (`RG-OPP-001..007`) | À faire |
+| 8 | Activités, tâches, notifications, campagnes, catalogue | À faire |
+| 9 | Jobs/planif (`--notifier` → Scheduler/Queue) + Outbox Sage | À faire |
+| 10 | Rapports, tableaux de bord, import Excel, droit d'accès (§72) | À faire |
+| 11 | Tests de parité Pest + Vitest | À faire |
+| 12 | Bascule production | À faire |
+
+## Matrice de parité fonctionnelle (§31 — à remplir module par module)
+| Fonction | .NET | Laravel | Test | Statut |
+|---|---|---|---|---|
+| Socle / build | Oui | Oui | OK | Terminé |
+| Authentification | Oui | (kit) | — | À reprendre en Phase 2 |
+| … | | | | |
+
+## Problèmes / à confirmer
+- **P0** : portage des 8 garanties SQL Server → MySQL (ADR-001). Chaque ligne
+  devient un test dans sa phase.
+- **P0** : stratégie de migration des DONNÉES existantes (le .NET a un volume de
+  recette ; MySQL repart de zéro — définir l'export/import si reprise voulue).
+
+## Dette technique
+- (aucune pour l'instant)
