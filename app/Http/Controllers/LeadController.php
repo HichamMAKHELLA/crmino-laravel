@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreLeadRequest;
 use App\Models\Lead;
+use App\Models\Referentiels\Source;
 use App\Models\Referentiels\StatutLead;
 use App\Support\DetecteurDoublons;
 use Illuminate\Http\RedirectResponse;
@@ -34,7 +35,20 @@ class LeadController extends Controller
                 'ville' => $l->ville?->libelle,
             ]);
 
-        return Inertia::render('Leads/Index', ['leads' => $leads]);
+        return Inertia::render('Leads/Index', [
+            'leads' => $leads,
+            'peutCreer' => $request->user()->can('create', Lead::class),
+        ]);
+    }
+
+    public function create(Request $request): Response
+    {
+        $this->authorize('create', Lead::class);
+
+        return Inertia::render('Leads/Create', [
+            'sources' => Source::query()->actif()->ordonne()
+                ->get(['id', 'libelle'])->map(fn ($s) => ['id' => $s->id, 'libelle' => $s->libelle]),
+        ]);
     }
 
     public function store(StoreLeadRequest $request, DetecteurDoublons $detecteur): RedirectResponse

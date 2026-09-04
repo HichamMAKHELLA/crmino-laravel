@@ -91,6 +91,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Contacts : table + normalisation §41 (téléphone) | Oui | Oui | OK | Terminé (société §6 différée) |
 | Détection §41 complète (ICE/tél./courriel/domaine/raison) | Oui | Oui | OK | Terminé |
 | Création d'un lead (RG-LEA-001, doublons, contact principal) | Oui | Oui | OK | Terminé |
+| Écran de création + panneau de doublons « Créer quand même » | Oui | Oui | Navigateur | Terminé |
 | Leads : qualification §13 / score §15 | Oui | Non | — | À faire |
 | Authentification | Oui | (kit) | — | À reprendre en Phase 2 |
 
