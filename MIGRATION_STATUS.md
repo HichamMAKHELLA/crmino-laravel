@@ -64,7 +64,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | 4 | Référentiels administrables (§50, `RG-REF-*`) | **Tranches 1-2 faites** (8 auto-contenus + géographique + fonctions) ; reste score, besoins, catalogue, alertes |
 | 5 | Leads + doublons + qualification + score (`RG-LEA-*`, `RG-DOU`, `RG-IND`) | **Tranches 1-2 faites** (table, périmètre prouvé, numérotation, écran Inertia, doublons §41) ; reste édition qualif./score, suggestion de score |
 | 6 | Sociétés + contacts + conversion (`RG-SOC`, §31) | **Tranches 1-2 faites** (table, périmètre, liste, conversion §31 avec bascule des contacts, fiches lead/société) ; reste bascule activités/tâches/documents (§8), état §32, édition |
-| 7 | Opportunités + lignes + pipeline (`RG-OPP-001..007`) | **Tranche 1 faite** (table, pondéré généré RG-OPP-001, création §25, board pipeline) ; reste clôture gain/perte (RG-OPP-002/003/005), glisser-déposer §64, lignes §28, fiche |
+| 7 | Opportunités + lignes + pipeline (`RG-OPP-001..007`) | **Tranches 1-2 faites** (pondéré généré, création, board, fiche, clôture gain/perte RG-OPP-002/003/005) ; reste glisser-déposer §64, lignes §28 |
 | 8 | Activités, tâches, notifications, campagnes, catalogue | À faire |
 | 9 | Jobs/planif (`--notifier` → Scheduler/Queue) + Outbox Sage | À faire |
 | 10 | Rapports, tableaux de bord, import Excel, droit d'accès (§72) | À faire |
@@ -107,7 +107,8 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | RG-OPP-001 : montant pondéré (colonne générée) | Oui | Oui | OK | Terminé (mutation schéma) |
 | Ouverture d'une affaire (§25) + RG-OPP-004 (proba surchargée) | Oui | Oui | Navigateur | Terminé |
 | Pipeline : board par étape (§64, lecture) + périmètre | Oui | Oui | Navigateur | Terminé |
-| Opportunités : clôture gain/perte, glisser-déposer §64, lignes §28, fiche | Oui | Non | — | À faire |
+| Fiche opportunité (§58) + clôture RG-OPP-002/003/005 | Oui | Oui | OK | Terminé |
+| Opportunités : glisser-déposer §64, lignes §28 | Oui | Non | — | À faire |
 | Authentification | Oui | (kit) | — | À reprendre en Phase 2 |
 
 ## Problèmes / à confirmer

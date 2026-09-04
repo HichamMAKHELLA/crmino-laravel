@@ -21,6 +21,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('opportunites', [OpportuniteController::class, 'index'])->name('opportunites.index');
     Route::get('opportunites/create', [OpportuniteController::class, 'create'])->name('opportunites.create');
     Route::post('opportunites', [OpportuniteController::class, 'store'])->name('opportunites.store');
+    Route::get('opportunites/{opportunite}', [OpportuniteController::class, 'show'])->name('opportunites.show');
+    Route::post('opportunites/{opportunite}/gagner', [OpportuniteController::class, 'gagner'])->name('opportunites.gagner');
+    Route::post('opportunites/{opportunite}/perdre', [OpportuniteController::class, 'perdre'])->name('opportunites.perdre');
     Route::post('leads', [LeadController::class, 'store'])->name('leads.store');
 });
 

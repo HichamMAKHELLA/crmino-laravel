@@ -71,10 +71,11 @@ defineOptions({
                 </div>
                 <p class="-mt-1 text-xs text-muted-foreground">Pondéré : {{ montant(col.total_pondere) }}</p>
 
-                <div
+                <Link
                     v-for="c in col.cartes"
                     :key="c.id"
-                    class="flex flex-col gap-1 rounded-lg border border-sidebar-border/70 bg-background p-3 text-sm dark:border-sidebar-border"
+                    :href="`/opportunites/${c.id}`"
+                    class="flex flex-col gap-1 rounded-lg border border-sidebar-border/70 bg-background p-3 text-sm hover:border-primary/50 dark:border-sidebar-border"
                 >
                     <p class="font-medium">{{ c.intitule }}</p>
                     <p class="text-xs text-muted-foreground">{{ c.societe ?? '—' }}</p>
@@ -82,7 +83,7 @@ defineOptions({
                         <span class="font-mono text-xs">{{ montant(c.montant_ht) }}</span>
                         <span class="text-xs text-muted-foreground">{{ c.probabilite }} %</span>
                     </div>
-                </div>
+                </Link>
 
                 <p v-if="col.cartes.length === 0" class="py-4 text-center text-xs text-muted-foreground">
                     Aucune affaire.

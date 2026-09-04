@@ -7,9 +7,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreOpportuniteRequest;
 use App\Models\Opportunite;
 use App\Models\Referentiels\EtapePipeline;
+use App\Models\Referentiels\MotifPerte;
 use App\Models\Societe;
+use App\Support\ClotureOpportunite;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -68,6 +71,94 @@ class OpportuniteController extends Controller
                 ->map(fn ($e) => ['id' => $e->id, 'libelle' => $e->libelle, 'probabilite' => $e->probabilite]),
             'societePreselectionnee' => $request->integer('societe') ?: null,
         ]);
+    }
+
+    public function show(Request $request, Opportunite $opportunite): Response
+    {
+        abort_unless($request->user()->peut('opportunite.consulter'), 403);
+        abort_unless($this->dansPerimetre($request, $opportunite, 'opportunite.consulter'), 404);
+
+        $opportunite->load(['societe:id,numero,raison_sociale,etat', 'etape:id,libelle', 'motifPerte:id,libelle', 'proprietaire']);
+
+        return Inertia::render('Opportunites/Show', [
+            'opportunite' => [
+                'id' => $opportunite->id,
+                'numero' => $opportunite->numero,
+                'intitule' => $opportunite->intitule,
+                'statut' => $opportunite->statut,
+                'etape' => $opportunite->etape?->libelle,
+                'probabilite' => $opportunite->probabilite,
+                'montant_ht' => (float) $opportunite->montant_ht,
+                'montant_pondere' => (float) $opportunite->montant_pondere,
+                'motif_perte' => $opportunite->motifPerte?->libelle,
+                'commentaire_perte' => $opportunite->commentaire_perte,
+                'proprietaire' => $opportunite->proprietaire
+                    ? trim(($opportunite->proprietaire->prenom ?? '').' '.($opportunite->proprietaire->nom ?? ''))
+                    : null,
+            ],
+            'societe' => [
+                'id' => $opportunite->societe?->id,
+                'numero' => $opportunite->societe?->numero,
+                'raison_sociale' => $opportunite->societe?->raison_sociale,
+                'etat' => $opportunite->societe?->etat,
+            ],
+            'peutCloturer' => $request->user()->peut('opportunite.cloturer'),
+            'motifs' => MotifPerte::query()->where('actif', true)->orderBy('ordre')
+                ->get(['id', 'libelle', 'commentaire_obligatoire'])
+                ->map(fn ($m) => ['id' => $m->id, 'libelle' => $m->libelle, 'commentaire_obligatoire' => $m->commentaire_obligatoire]),
+        ]);
+    }
+
+    public function gagner(Request $request, Opportunite $opportunite, ClotureOpportunite $cloture): RedirectResponse
+    {
+        abort_unless($request->user()->peut('opportunite.cloturer'), 403);
+        abort_unless($this->dansPerimetre($request, $opportunite, 'opportunite.cloturer'), 404);
+
+        // RG-OPP-005 : une affaire close ne se referme pas.
+        if ($opportunite->estClose()) {
+            return back()->with('error', 'RG-OPP-005 : cette affaire est close. Son étape ne change plus.');
+        }
+
+        $cloture->gagner($opportunite, $request->user());
+
+        return back()->with('success',
+            "Affaire gagnée. {$opportunite->societe?->raison_sociale} devient cliente (RG-OPP-003).");
+    }
+
+    public function perdre(Request $request, Opportunite $opportunite, ClotureOpportunite $cloture): RedirectResponse
+    {
+        abort_unless($request->user()->peut('opportunite.cloturer'), 403);
+        abort_unless($this->dansPerimetre($request, $opportunite, 'opportunite.cloturer'), 404);
+
+        // RG-OPP-005 AVANT le motif : sinon une affaire close rendrait le refus
+        // d'une perte sans motif, et l'on chercherait un motif qui ne débloque rien.
+        if ($opportunite->estClose()) {
+            return back()->with('error', 'RG-OPP-005 : cette affaire est close. Son étape ne change plus.');
+        }
+
+        // RG-OPP-002 : une perte exige un motif.
+        $data = $request->validate([
+            'motif_perte_id' => ['required', 'integer', 'exists:motifs_perte,id'],
+            'commentaire' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        // RG-OPP-002 : certains motifs exigent un commentaire.
+        $motif = MotifPerte::query()->find($data['motif_perte_id']);
+        if ($motif?->commentaire_obligatoire && trim((string) ($data['commentaire'] ?? '')) === '') {
+            throw ValidationException::withMessages([
+                'commentaire' => 'RG-OPP-002 : ce motif de perte exige un commentaire.',
+            ]);
+        }
+
+        $cloture->perdre($opportunite, (int) $data['motif_perte_id'], $data['commentaire'] ?? null, $request->user());
+
+        return back()->with('success', 'Affaire clôturée en perte.');
+    }
+
+    private function dansPerimetre(Request $request, Opportunite $opportunite, string $permission): bool
+    {
+        return Opportunite::query()->whereKey($opportunite->id)
+            ->dansPerimetre($request->user(), $permission)->exists();
     }
 
     public function store(StoreOpportuniteRequest $request): RedirectResponse
