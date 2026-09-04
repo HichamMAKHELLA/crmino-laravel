@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\LeadController;
+use App\Http\Controllers\OpportuniteController;
 use App\Http\Controllers\SocieteController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +17,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('societes', [SocieteController::class, 'index'])->name('societes.index');
     Route::get('societes/{societe}', [SocieteController::class, 'show'])->name('societes.show');
+
+    Route::get('opportunites', [OpportuniteController::class, 'index'])->name('opportunites.index');
+    Route::get('opportunites/create', [OpportuniteController::class, 'create'])->name('opportunites.create');
+    Route::post('opportunites', [OpportuniteController::class, 'store'])->name('opportunites.store');
     Route::post('leads', [LeadController::class, 'store'])->name('leads.store');
 });
 
