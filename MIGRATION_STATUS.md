@@ -15,14 +15,20 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 - **Environnement DB** : MariaDB 12.3 (winget), base `crmino_laravel` utf8mb4, migrations par défaut appliquées. Base NEUVE (pas de reprise de données).
 
 ## En cours
-- Rien (attente du feu vert pour la Phase 1).
+- **Phase 3 (identité + périmètre) — tranche 1 faite.** Tables `roles`,
+  `permissions`, `role_permissions` (portée), `equipes` + extension de `users` ;
+  enum `Portee`, résolution `User::porteePour/peut`, trait `AvecPerimetre`
+  (`scopeDansPerimetre`, port de `ClausePerimetre`). Seed des 4 rôles socles.
+  **12 tests, filet RG-HAB-001 prouvé par mutation** (4 chutes).
+  Reste sur cette phase : catalogue des 53 permissions + matrice §78, réconcilier
+  l'inscription du kit avec le §5 (comptes créés par un admin, rôle obligatoire).
 
 ## À faire — par phases (§30)
 | Phase | Module | État |
 |---|---|---|
 | 1 | Schéma (58 tables) + seeds des 25 référentiels + portage des garanties SQL Server (ADR-001) | À faire |
 | 2 | Auth locale (session) + `RG-AUTH` (verrou anti-force) | À faire |
-| 3 | Rôles + périmètre (`PerimetreScope`, `RG-HAB-*`) | À faire |
+| 3 | Rôles + périmètre (`PerimetreScope`, `RG-HAB-*`) | **Tranche 1 faite** (identité, portée, scope) ; reste permissions + matrice §78 |
 | 4 | Référentiels administrables (§50, `RG-REF-*`) | À faire |
 | 5 | Leads + doublons + qualification + score (`RG-LEA-*`, `RG-DOU`, `RG-IND`) | À faire |
 | 6 | Sociétés + contacts + conversion (`RG-SOC`, §31) | À faire |
@@ -37,8 +43,11 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Fonction | .NET | Laravel | Test | Statut |
 |---|---|---|---|---|
 | Socle / build | Oui | Oui | OK | Terminé |
+| Rôles + équipes (schéma) | Oui | Oui | OK | Terminé |
+| Résolution de portée (`porteePour`) | Oui | Oui | OK | Terminé |
+| Périmètre par ligne (`scopeDansPerimetre`, RG-HAB-001) | Oui | Oui | OK | Terminé |
+| Catalogue permissions + matrice §78 | Oui | Non | — | À faire |
 | Authentification | Oui | (kit) | — | À reprendre en Phase 2 |
-| … | | | | |
 
 ## Problèmes / à confirmer
 - **P0** : portage des 8 garanties SQL Server → MySQL (ADR-001). Chaque ligne
