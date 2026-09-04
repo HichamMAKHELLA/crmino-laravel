@@ -44,7 +44,14 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * Crée un utilisateur habilité par le code de son rôle (SecuriteSeeder requis).
+ */
+function crminoUtilisateur(string $roleCode, ?int $equipeId = null): \App\Models\User
 {
-    // ..
+    return \App\Models\User::factory()->create([
+        'role_id' => \App\Models\Role::query()->where('code', $roleCode)->value('id'),
+        'equipe_id' => $equipeId,
+        'actif' => true,
+    ]);
 }

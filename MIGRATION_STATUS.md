@@ -25,6 +25,15 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
   résolution de bout en bout où le §68 prime (prouvé par mutation).
   Reste sur cette phase : réconcilier l'inscription du kit avec le §5 (comptes
   créés par un admin, rôle obligatoire, pas d'auto-inscription).
+- **Phase 4 — référentiels géographiques faits.** Hiérarchie Pays → Région →
+  Ville (FK) + fonctions de contact. Seeds fidèles (7/12/21/13). 3 tests.
+- **Phase 5 (Leads) — tranche 1 : le premier écran Inertia.** Table `leads`
+  fidèle à `app.Lead`, modèle avec trait `AvecPerimetre`, numérotation §10
+  (`Numerotation` + table `sequences`, verrou de ligne), `LeadPolicy`,
+  `LeadController` (Inertia `Leads/Index`), page Vue, route et entrée de nav.
+  **Le périmètre RG-HAB-001 est prouvé sur un VRAI modèle** (Siennes/Équipe/
+  Toutes divergent), mutation à l'appui (2 chutes). 11 tests. Reste :
+  doublons §41 (normalisation), qualification §13, score §15, création/édition.
 
 ## À faire — par phases (§30)
 | Phase | Module | État |
@@ -32,8 +41,8 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | 1 | Schéma (58 tables) + seeds des 25 référentiels + portage des garanties SQL Server (ADR-001) | À faire |
 | 2 | Auth locale (session) + `RG-AUTH` (verrou anti-force) | À faire |
 | 3 | Rôles + périmètre (`PerimetreScope`, `RG-HAB-*`) | **Tranche 1 faite** (identité, portée, scope) ; reste permissions + matrice §78 |
-| 4 | Référentiels administrables (§50, `RG-REF-*`) | **Tranche 1 faite** (8 auto-contenus) ; reste géographique, score, besoins, catalogue, alertes |
-| 5 | Leads + doublons + qualification + score (`RG-LEA-*`, `RG-DOU`, `RG-IND`) | À faire |
+| 4 | Référentiels administrables (§50, `RG-REF-*`) | **Tranches 1-2 faites** (8 auto-contenus + géographique + fonctions) ; reste score, besoins, catalogue, alertes |
+| 5 | Leads + doublons + qualification + score (`RG-LEA-*`, `RG-DOU`, `RG-IND`) | **Tranche 1 faite** (table, modèle, périmètre prouvé, numérotation, écran Inertia) ; reste doublons, qualification, score |
 | 6 | Sociétés + contacts + conversion (`RG-SOC`, §31) | À faire |
 | 7 | Opportunités + lignes + pipeline (`RG-OPP-001..007`) | À faire |
 | 8 | Activités, tâches, notifications, campagnes, catalogue | À faire |
@@ -52,7 +61,12 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Catalogue permissions (53) + matrice §78 | Oui | Oui | OK | Terminé |
 | Extinction §68 + dossier §72 | Oui | Oui | OK | Terminé |
 | Référentiels moteur + 8 auto-contenus (sources, statuts, étapes, motifs…) | Oui | Oui | OK | Terminé |
-| Référentiels géographiques / score / besoins / catalogue / alertes | Oui | Non | — | À faire |
+| Référentiels géographiques (Pays/Région/Ville) + fonctions | Oui | Oui | OK | Terminé |
+| Référentiels score / besoins / catalogue / alertes | Oui | Non | — | À faire |
+| Leads : schéma + modèle + numérotation §10 | Oui | Oui | OK | Terminé |
+| Leads : périmètre par ligne (RG-HAB-001, vrai modèle) | Oui | Oui | OK | Terminé |
+| Leads : écran liste (Inertia + Policy) | Oui | Oui | OK | Terminé |
+| Leads : doublons §41 / qualification §13 / score §15 | Oui | Non | — | À faire |
 | Authentification | Oui | (kit) | — | À reprendre en Phase 2 |
 
 ## Problèmes / à confirmer
