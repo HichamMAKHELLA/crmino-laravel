@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActiviteController;
 use App\Http\Controllers\CampagneController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DonneesPersonnellesController;
 use App\Http\Controllers\JournalController;
 use App\Http\Controllers\CatalogueController;
 use App\Http\Controllers\NotificationController;
@@ -55,6 +56,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('rapports', [RapportController::class, 'index'])->name('rapports.index');
     Route::get('journal', [JournalController::class, 'index'])->name('journal.index');
+
+    Route::get('donnees-personnelles', [DonneesPersonnellesController::class, 'index'])->name('donnees.index');
+    Route::post('donnees-personnelles/contact/{contact}', [DonneesPersonnellesController::class, 'dossier'])->name('donnees.dossier');
 
     Route::post('leads', [LeadController::class, 'store'])->name('leads.store');
 });
