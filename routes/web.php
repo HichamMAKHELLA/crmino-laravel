@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\LeadController;
+use App\Http\Controllers\SocieteController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'Welcome')->name('home');
@@ -11,6 +12,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('leads', [LeadController::class, 'index'])->name('leads.index');
     Route::get('leads/create', [LeadController::class, 'create'])->name('leads.create');
     Route::get('leads/{lead}', [LeadController::class, 'show'])->name('leads.show');
+
+    Route::get('societes', [SocieteController::class, 'index'])->name('societes.index');
     Route::post('leads', [LeadController::class, 'store'])->name('leads.store');
 });
 

@@ -63,7 +63,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | 3 | Rôles + périmètre (`PerimetreScope`, `RG-HAB-*`) | **Tranche 1 faite** (identité, portée, scope) ; reste permissions + matrice §78 |
 | 4 | Référentiels administrables (§50, `RG-REF-*`) | **Tranches 1-2 faites** (8 auto-contenus + géographique + fonctions) ; reste score, besoins, catalogue, alertes |
 | 5 | Leads + doublons + qualification + score (`RG-LEA-*`, `RG-DOU`, `RG-IND`) | **Tranches 1-2 faites** (table, périmètre prouvé, numérotation, écran Inertia, doublons §41) ; reste édition qualif./score, suggestion de score |
-| 6 | Sociétés + contacts + conversion (`RG-SOC`, §31) | À faire |
+| 6 | Sociétés + contacts + conversion (`RG-SOC`, §31) | **Tranche 1 faite** (table, modèle, périmètre, écran liste, FK société sur contacts/leads) ; reste conversion §31, fiche, état §32 |
 | 7 | Opportunités + lignes + pipeline (`RG-OPP-001..007`) | À faire |
 | 8 | Activités, tâches, notifications, campagnes, catalogue | À faire |
 | 9 | Jobs/planif (`--notifier` → Scheduler/Queue) + Outbox Sage | À faire |
@@ -97,6 +97,9 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Fiche 360° du lead (§58, palier, contacts, qualif) | Oui | Oui | Navigateur | Terminé |
 | Édition qualification §13 + score §15 (écriture, suggestion) | Oui | Non | — | À faire |
 | Leads : qualification §13 / score §15 | Oui | Non | — | À faire |
+| Sociétés : table + modèle + numérotation SOC + normalisation §41 | Oui | Oui | OK | Terminé |
+| Sociétés : écran liste + périmètre (RG-HAB-001) | Oui | Oui | Navigateur | Terminé |
+| Conversion §31 (lead -> société, bascule) / fiche / état §32 | Oui | Non | — | À faire |
 | Authentification | Oui | (kit) | — | À reprendre en Phase 2 |
 
 ## Problèmes / à confirmer
