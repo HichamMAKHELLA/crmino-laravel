@@ -11,6 +11,7 @@ use App\Models\Referentiels\Secteur;
 use App\Models\Referentiels\Source;
 use App\Models\Referentiels\StatutLead;
 use App\Models\Referentiels\Ville;
+use App\Support\Doublons;
 use App\Support\Numerotation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -57,6 +58,14 @@ class Lead extends Model
             if (blank($lead->numero)) {
                 $lead->numero = Numerotation::suivant(Numerotation::PREFIXE_LEAD);
             }
+        });
+
+        // §41 : les colonnes de rapprochement se recalculent à CHAQUE écriture.
+        // Les laisser figées ferait retrouver l'ANCIENNE raison sociale après un
+        // renommage, et créer un doublon de la fiche qu'on vient de corriger.
+        static::saving(function (Lead $lead): void {
+            $lead->raison_sociale_normalisee = Doublons::normaliserRaisonSociale($lead->raison_sociale);
+            $lead->domaine_web = Doublons::extraireDomaine($lead->site_web);
         });
     }
 

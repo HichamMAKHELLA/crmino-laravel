@@ -33,7 +33,16 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
   `LeadController` (Inertia `Leads/Index`), page Vue, route et entrée de nav.
   **Le périmètre RG-HAB-001 est prouvé sur un VRAI modèle** (Siennes/Équipe/
   Toutes divergent), mutation à l'appui (2 chutes). 11 tests. Reste :
-  doublons §41 (normalisation), qualification §13, score §15, création/édition.
+  qualification §13, score §15, création/édition.
+- **Phase 5/2 (doublons §41) — fait.** Port de `Domain/Texte` et
+  `Domain/Doublons` (`app/Support/Texte.php`, `Doublons.php`) : normalisation de
+  la raison sociale (retrait des formes juridiques, recollage des sigles
+  pointés), du téléphone marocain, extraction de domaine (domaines grand public
+  écartés). Colonnes `raison_sociale_normalisee` / `domaine_web` recalculées à
+  CHAQUE écriture du Lead (hook `saving`). `DetecteurDoublons` croise ICE exact,
+  domaine exact et raison sociale EN PRÉFIXE, dédup par critère le plus fort.
+  19 tests, 2 mutations à l'appui. **Téléphone et courriel passent par le
+  Contact (§6)** — leurs branches arriveront avec la table `contacts`.
 
 ## À faire — par phases (§30)
 | Phase | Module | État |
@@ -42,7 +51,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | 2 | Auth locale (session) + `RG-AUTH` (verrou anti-force) | À faire |
 | 3 | Rôles + périmètre (`PerimetreScope`, `RG-HAB-*`) | **Tranche 1 faite** (identité, portée, scope) ; reste permissions + matrice §78 |
 | 4 | Référentiels administrables (§50, `RG-REF-*`) | **Tranches 1-2 faites** (8 auto-contenus + géographique + fonctions) ; reste score, besoins, catalogue, alertes |
-| 5 | Leads + doublons + qualification + score (`RG-LEA-*`, `RG-DOU`, `RG-IND`) | **Tranche 1 faite** (table, modèle, périmètre prouvé, numérotation, écran Inertia) ; reste doublons, qualification, score |
+| 5 | Leads + doublons + qualification + score (`RG-LEA-*`, `RG-DOU`, `RG-IND`) | **Tranches 1-2 faites** (table, périmètre prouvé, numérotation, écran Inertia, doublons §41) ; reste qualification, score, création/édition |
 | 6 | Sociétés + contacts + conversion (`RG-SOC`, §31) | À faire |
 | 7 | Opportunités + lignes + pipeline (`RG-OPP-001..007`) | À faire |
 | 8 | Activités, tâches, notifications, campagnes, catalogue | À faire |
@@ -66,7 +75,9 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Leads : schéma + modèle + numérotation §10 | Oui | Oui | OK | Terminé |
 | Leads : périmètre par ligne (RG-HAB-001, vrai modèle) | Oui | Oui | OK | Terminé |
 | Leads : écran liste (Inertia + Policy) | Oui | Oui | OK | Terminé |
-| Leads : doublons §41 / qualification §13 / score §15 | Oui | Non | — | À faire |
+| Normalisation §41 (Texte, Doublons : raison sociale, téléphone, domaine) | Oui | Oui | OK | Terminé |
+| Détection de doublons §41 (ICE / domaine / raison en préfixe) — leads | Oui | Oui | OK | Terminé (tél./courriel → Contact §6) |
+| Leads : qualification §13 / score §15 | Oui | Non | — | À faire |
 | Authentification | Oui | (kit) | — | À reprendre en Phase 2 |
 
 ## Problèmes / à confirmer
