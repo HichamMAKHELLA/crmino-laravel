@@ -19,6 +19,9 @@ class DatabaseSeeder extends Seeder
         // Rôles, permissions et matrice du §78 — socle de sécurité.
         $this->call(SecuriteSeeder::class);
 
+        // Référentiels auto-contenus (sources, statuts, étapes, motifs…).
+        $this->call(ReferentielsSeeder::class);
+
         // Compte administrateur de développement (local uniquement).
         User::factory()->create([
             'name' => 'Test User',

@@ -32,7 +32,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | 1 | Schéma (58 tables) + seeds des 25 référentiels + portage des garanties SQL Server (ADR-001) | À faire |
 | 2 | Auth locale (session) + `RG-AUTH` (verrou anti-force) | À faire |
 | 3 | Rôles + périmètre (`PerimetreScope`, `RG-HAB-*`) | **Tranche 1 faite** (identité, portée, scope) ; reste permissions + matrice §78 |
-| 4 | Référentiels administrables (§50, `RG-REF-*`) | À faire |
+| 4 | Référentiels administrables (§50, `RG-REF-*`) | **Tranche 1 faite** (8 auto-contenus) ; reste géographique, score, besoins, catalogue, alertes |
 | 5 | Leads + doublons + qualification + score (`RG-LEA-*`, `RG-DOU`, `RG-IND`) | À faire |
 | 6 | Sociétés + contacts + conversion (`RG-SOC`, §31) | À faire |
 | 7 | Opportunités + lignes + pipeline (`RG-OPP-001..007`) | À faire |
@@ -51,6 +51,8 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Périmètre par ligne (`scopeDansPerimetre`, RG-HAB-001) | Oui | Oui | OK | Terminé |
 | Catalogue permissions (53) + matrice §78 | Oui | Oui | OK | Terminé |
 | Extinction §68 + dossier §72 | Oui | Oui | OK | Terminé |
+| Référentiels moteur + 8 auto-contenus (sources, statuts, étapes, motifs…) | Oui | Oui | OK | Terminé |
+| Référentiels géographiques / score / besoins / catalogue / alertes | Oui | Non | — | À faire |
 | Authentification | Oui | (kit) | — | À reprendre en Phase 2 |
 
 ## Problèmes / à confirmer
