@@ -43,9 +43,28 @@ class HandleInertiaRequests extends Middleware
             ],
             'flash' => [
                 'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
                 // §41 : doublons potentiels remontés après un contrôle de création.
                 'doublons' => $request->session()->get('doublons'),
             ],
+            // §36 : le centre de notifications se rafraîchit à chaque navigation,
+            // pas par sondage périodique.
+            'notifications' => $request->user()
+                ? \App\Models\Notification::query()
+                    ->where('utilisateur_id', $request->user()->id)
+                    ->orderByDesc('cree_le')->limit(10)->get()
+                    ->map(fn ($n) => [
+                        'id' => $n->id,
+                        'titre' => $n->titre,
+                        'texte' => $n->texte,
+                        'lue' => $n->lue_le !== null,
+                        'cree_le' => $n->cree_le?->toIso8601String(),
+                    ])
+                : [],
+            'notificationsNonLues' => $request->user()
+                ? \App\Models\Notification::query()
+                    ->where('utilisateur_id', $request->user()->id)->whereNull('lue_le')->count()
+                : 0,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

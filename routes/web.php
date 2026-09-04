@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActiviteController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\TacheController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\OpportuniteController;
@@ -32,6 +33,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('taches', [TacheController::class, 'index'])->name('taches.index');
     Route::post('taches', [TacheController::class, 'store'])->name('taches.store');
     Route::post('taches/{tache}/terminer', [TacheController::class, 'terminer'])->name('taches.terminer');
+
+    Route::post('notifications/{notification}/lu', [NotificationController::class, 'lu'])->name('notifications.lu');
+    Route::post('notifications/tout-lu', [NotificationController::class, 'toutLu'])->name('notifications.tout-lu');
+
     Route::post('leads', [LeadController::class, 'store'])->name('leads.store');
 });
 

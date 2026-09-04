@@ -7,6 +7,8 @@ namespace App\Http\Controllers;
 use App\Models\Referentiels\PrioriteTache;
 use App\Models\Referentiels\TypeTache;
 use App\Models\Tache;
+use App\Models\User;
+use App\Support\Notifications;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -55,6 +57,8 @@ class TacheController extends Controller
                 ->map(fn ($t) => ['id' => $t->id, 'libelle' => $t->libelle]),
             'priorites' => PrioriteTache::query()->where('actif', true)->orderBy('niveau')->get(['id', 'libelle'])
                 ->map(fn ($p) => ['id' => $p->id, 'libelle' => $p->libelle]),
+            'utilisateurs' => User::query()->where('actif', true)->orderBy('nom')->get(['id', 'prenom', 'nom'])
+                ->map(fn ($u) => ['id' => $u->id, 'nom' => trim(($u->prenom ?? '').' '.($u->nom ?? '')) ?: $u->name]),
         ]);
     }
 
@@ -66,17 +70,30 @@ class TacheController extends Controller
             'titre' => ['required', 'string', 'max:200'],
             'type_id' => ['required', 'integer', 'exists:types_tache,id'],
             'priorite_id' => ['required', 'integer', 'exists:priorites_tache,id'],
+            'assignee_id' => ['nullable', 'integer', 'exists:users,id'],
             'echeance_le' => ['nullable', 'date'],
             'description' => ['nullable', 'string', 'max:2000'],
         ]);
 
-        Tache::create([
-            ...$data,
-            // Assignée au créateur par défaut ; la réassignation notifiera (§36).
-            'assignee_id' => $request->user()->id,
+        // Assignée au créateur à défaut de choix.
+        $assigneeId = $data['assignee_id'] ?? $request->user()->id;
+
+        $tache = Tache::create([
+            'titre' => $data['titre'],
+            'type_id' => $data['type_id'],
+            'priorite_id' => $data['priorite_id'],
+            'echeance_le' => $data['echeance_le'] ?? null,
+            'description' => $data['description'] ?? null,
+            'assignee_id' => $assigneeId,
             'statut' => 'AFaire',
             'cree_par' => $request->user()->id,
         ]);
+
+        // §36 : une tâche assignée à QUELQU'UN D'AUTRE le notifie. On ne se
+        // notifie pas soi-même — la liste cesserait d'être lue.
+        if ($assigneeId !== $request->user()->id) {
+            Notifications::notifier($assigneeId, 'Tâche assignée', $tache->titre, 'Tache', $tache->id);
+        }
 
         return back()->with('success', 'Tâche créée.');
     }

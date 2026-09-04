@@ -12,7 +12,8 @@ interface Tache {
 }
 interface Option { id: number; libelle: string }
 
-const props = defineProps<{ taches: Tache[]; types: Option[]; priorites: Option[] }>();
+interface UtilisateurOption { id: number; nom: string }
+const props = defineProps<{ taches: Tache[]; types: Option[]; priorites: Option[]; utilisateurs: UtilisateurOption[] }>();
 
 const page = usePage();
 const succes = computed(() => (page.props.flash as { success?: string } | undefined)?.success);
@@ -21,6 +22,7 @@ const form = useForm({
     titre: '',
     type_id: props.types[0]?.id ?? (null as number | null),
     priorite_id: props.priorites[0]?.id ?? (null as number | null),
+    assignee_id: null as number | null,
     echeance_le: '',
     description: '',
 });
@@ -78,6 +80,13 @@ defineOptions({
                     <span>Priorité</span>
                     <select v-model="form.priorite_id" class="rounded-md border bg-background px-3 py-1.5">
                         <option v-for="p in priorites" :key="p.id" :value="p.id">{{ p.libelle }}</option>
+                    </select>
+                </label>
+                <label class="flex flex-col gap-1 text-sm">
+                    <span>Assigné à</span>
+                    <select v-model="form.assignee_id" class="rounded-md border bg-background px-3 py-1.5">
+                        <option :value="null">Moi</option>
+                        <option v-for="u in utilisateurs" :key="u.id" :value="u.id">{{ u.nom }}</option>
                     </select>
                 </label>
                 <label class="flex flex-col gap-1 text-sm">
