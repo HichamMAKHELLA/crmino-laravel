@@ -67,7 +67,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | 7 | Opportunités + lignes + pipeline (`RG-OPP-001..007`) | **Tranches 1-2 faites** (pondéré généré, création, board, fiche, clôture gain/perte RG-OPP-002/003/005) ; reste glisser-déposer §64, lignes §28 |
 | 8 | Activités, tâches, notifications, campagnes, catalogue | **Terminée** (activités, tâches, notifications, campagnes, catalogue §28 + §47) |
 | 9 | Jobs/planif (`--notifier` → Scheduler/Queue) + Outbox Sage | À faire |
-| 10 | Rapports, tableaux de bord, import Excel, droit d'accès (§72) | À faire |
+| 10 | Rapports, tableaux de bord, import Excel, droit d'accès (§72) | **Tranche 1 faite** (accueil commercial §77 : tuiles périmètre, RG-IND-001) ; reste rapports §38/§39/§75/§76, import Excel, droit d'accès §72 |
 | 11 | Tests de parité Pest + Vitest | À faire |
 | 12 | Bascule production | À faire |
 
