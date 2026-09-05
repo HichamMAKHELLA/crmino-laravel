@@ -4,6 +4,7 @@ use App\Http\Controllers\ActiviteController;
 use App\Http\Controllers\CampagneController;
 use App\Http\Controllers\CommentaireController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\DonneesPersonnellesController;
 use App\Http\Controllers\JournalController;
 use App\Http\Controllers\CatalogueController;
@@ -62,6 +63,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('catalogue', [CatalogueController::class, 'store'])->name('catalogue.store');
     Route::post('catalogue/{produit}/desactiver', [CatalogueController::class, 'desactiver'])->name('catalogue.desactiver');
     Route::post('catalogue/{produit}/reactiver', [CatalogueController::class, 'reactiver'])->name('catalogue.reactiver');
+
+    Route::get('import', [ImportController::class, 'index'])->name('import.index');
+    Route::post('import/analyser', [ImportController::class, 'analyser'])->name('import.analyser');
+    Route::post('import/executer', [ImportController::class, 'executer'])->name('import.executer');
 
     Route::get('rapports', [RapportController::class, 'index'])->name('rapports.index');
     Route::get('journal', [JournalController::class, 'index'])->name('journal.index');
