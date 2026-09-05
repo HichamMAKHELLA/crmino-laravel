@@ -27,6 +27,7 @@ class QualificationLead extends Model
         'nb_utilisateurs', 'hebergement', 'base_donnees', 'prestataire_actuel',
         'usage_sage', 'version_sage', 'nb_utilisateurs_sage', 'revendeur_actuel',
         'contrat_sage', 'date_renouvellement_sage', 'modifie_le', 'modifie_par',
+        'tranche_budget_id', 'horizon_decision_id', 'projet_defini',
     ];
 
     protected function casts(): array
@@ -39,6 +40,7 @@ class QualificationLead extends Model
             'contrat_sage' => 'boolean',
             'date_renouvellement_sage' => 'date',
             'modifie_le' => 'datetime',
+            'projet_defini' => 'boolean',
         ];
     }
 

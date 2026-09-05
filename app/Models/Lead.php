@@ -123,4 +123,10 @@ class Lead extends Model
     {
         return $this->hasMany(Activite::class);
     }
+
+    /** §14 : les besoins exprimés (n-n). Nourrit le critère BESOIN du score §15. */
+    public function besoins(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(\App\Models\Referentiels\Besoin::class, 'lead_besoins', 'lead_id', 'besoin_id');
+    }
 }

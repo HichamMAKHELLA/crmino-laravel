@@ -83,7 +83,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Référentiels moteur + 8 auto-contenus (sources, statuts, étapes, motifs…) | Oui | Oui | OK | Terminé |
 | Référentiels géographiques (Pays/Région/Ville) + fonctions | Oui | Oui | OK | Terminé |
 | Référentiel types_document (§44, DEVIS/PROPOSITION socle §15) | Oui | Oui | OK | Terminé |
-| Référentiels score / besoins / alertes | Oui | Non | — | À faire |
+| Référentiels alertes (§35) | Oui | Non | — | À faire |
 | Leads : schéma + modèle + numérotation §10 | Oui | Oui | OK | Terminé |
 | Leads : périmètre par ligne (RG-HAB-001, vrai modèle) | Oui | Oui | OK | Terminé |
 | Leads : écran liste (Inertia + Policy) | Oui | Oui | OK | Terminé |
@@ -98,7 +98,8 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Fiche 360° du lead (§58, palier, contacts, qualif) | Oui | Oui | Navigateur | Terminé |
 | Édition lead §5 (PUT liste blanche, propriétaire exclu, RG-LEA-003, §41, vide→null) | Oui | Oui | OK | Terminé (mutation : RG-LEA-003, exclusion) |
 | Édition qualification §13 (satellite, remplacement, bloc Sage, RG-LEA-003) | Oui | Oui | OK | Terminé (2 mutations : bloc Sage, RG-LEA-003) |
-| Score §15 : suggestion automatique (CritereScore + référentiels) | Oui | Non | — | À faire (référentiels absents) |
+| Score §15 : suggestion automatique (8 critères pondérés, hors d'atteinte RG-LEA-004) | Oui | Oui | OK | Terminé (2 mutations : RDV effectué, évaluabilité) |
+| Référentiels score (CritereScore, TrancheBudget, HorizonDecision, Besoin) | Oui | Oui | OK | Terminé |
 | Sociétés : table + modèle + numérotation SOC + normalisation §41 | Oui | Oui | OK | Terminé |
 | Sociétés : écran liste + périmètre (RG-HAB-001) | Oui | Oui | Navigateur | Terminé |
 | Conversion §31 (lead -> société, bascule des contacts) | Oui | Oui | Navigateur | Terminé (autres familles -> §8) |

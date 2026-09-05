@@ -10,6 +10,8 @@ interface Lead {
     proprietaire: string | null; score: number | null; commentaire: string | null;
 }
 interface Palier { libelle: string; borne_min: number; borne_max: number; couleur: string | null }
+interface CritereScore { code: string; libelle: string; poids: number; acquis: boolean; evaluable: boolean }
+interface ScoreSuggere { suggestion: number; total: number; total_atteignable: number; criteres: CritereScore[] }
 interface ContactLigne {
     id: number; nom: string; fonction: string | null;
     telephone: string | null; gsm: string | null; email: string | null; principal: boolean;
@@ -44,6 +46,7 @@ interface Qualif {
 const props = defineProps<{
     lead: Lead;
     palier: Palier | null;
+    scoreSuggere: ScoreSuggere | null;
     contacts: ContactLigne[];
     qualification: Qualification | null;
     converti: boolean;
@@ -74,6 +77,13 @@ const qual = useForm({ ...props.qualif });
 const montreSage = computed(() => qual.usage_sage === 'Oui' || qual.usage_sage === 'Ancien');
 function enregistrerQualif() {
     qual.put(`/leads/${props.lead.id}/qualification`, { preserveScroll: true, onSuccess: () => { enQualif.value = false; } });
+}
+
+// §15 : appliquer la SUGGESTION valide le score suggéré (le commercial tranche).
+function appliquerScore() {
+    if (!props.scoreSuggere) return;
+    edit.score = props.scoreSuggere.suggestion;
+    edit.put(`/leads/${props.lead.id}`, { preserveScroll: true });
 }
 
 function convertir() {
@@ -143,6 +153,37 @@ defineOptions({
                     <p class="text-xs text-muted-foreground">à qualifier</p>
                 </template>
             </div>
+        </div>
+
+        <!-- §15 : le score SUGGÉRÉ (jamais écrit d'office). Le commercial l'applique. -->
+        <div v-if="scoreSuggere" class="flex flex-col gap-3 rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <p class="text-xs text-muted-foreground">Score suggéré (§15)</p>
+                    <p class="text-lg font-semibold">
+                        {{ scoreSuggere.suggestion }}<span class="text-sm font-normal text-muted-foreground">/{{ scoreSuggere.total_atteignable }}</span>
+                        <span v-if="scoreSuggere.total_atteignable < scoreSuggere.total" class="ml-2 text-xs text-amber-700 dark:text-amber-400">
+                            (plafond réduit — critères hors d'atteinte)
+                        </span>
+                    </p>
+                </div>
+                <button
+                    v-if="peutModifier"
+                    type="button"
+                    class="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+                    @click="appliquerScore"
+                >
+                    Appliquer le score suggéré
+                </button>
+            </div>
+            <ul class="grid gap-1 sm:grid-cols-2">
+                <li v-for="c in scoreSuggere.criteres" :key="c.code" class="flex items-center justify-between rounded-md border border-sidebar-border/50 px-3 py-1.5 text-sm">
+                    <span :class="{ 'text-muted-foreground line-through': !c.evaluable }">{{ c.libelle }} ({{ c.poids }})</span>
+                    <span v-if="!c.evaluable" class="text-xs text-amber-700 dark:text-amber-400">hors d'atteinte</span>
+                    <span v-else-if="c.acquis" class="text-xs text-green-700 dark:text-green-300">acquis</span>
+                    <span v-else class="text-xs text-muted-foreground">pas encore</span>
+                </li>
+            </ul>
         </div>
 
         <div class="flex flex-wrap gap-2">

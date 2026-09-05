@@ -106,6 +106,43 @@ class ReferentielsSeeder extends Seeder
             ['AUTRE', 'Autre', 999, true],
         ]);
 
+        // criteres_score §15 : [code, libellé, poids, ordre, systeme] — total = 100.
+        $this->upsert('criteres_score', ['code', 'libelle', 'poids', 'ordre', 'systeme'], [
+            ['BUDGET', 'Budget identifié', 15, 15, true],
+            ['BESOIN', 'Besoin exprimé', 15, 10, true],
+            ['DECISIONNAIRE', 'Décisionnaire identifié', 15, 20, true],
+            ['PROJET', 'Projet défini', 10, 25, true],
+            ['DELAI', 'Délai de décision connu', 10, 35, true],
+            ['RDV', 'Rendez-vous effectué', 15, 40, true],
+            ['DEVIS', 'Devis ou proposition déposé', 15, 45, true],
+            ['INTERACTION', 'Interaction récente', 5, 50, true],
+        ]);
+
+        // tranches_budget §15 : [code, libellé, ordre, systeme]
+        $this->upsert('tranches_budget', ['code', 'libelle', 'ordre', 'systeme'], [
+            ['MOINS_50K', 'Moins de 50 000 MAD', 10, false],
+            ['50K_200K', '50 000 à 200 000 MAD', 20, false],
+            ['200K_500K', '200 000 à 500 000 MAD', 30, false],
+            ['PLUS_500K', 'Plus de 500 000 MAD', 40, false],
+        ]);
+
+        // horizons_decision §15 : [code, libellé, ordre, systeme]
+        $this->upsert('horizons_decision', ['code', 'libelle', 'ordre', 'systeme'], [
+            ['IMMEDIAT', 'Immédiat (moins de 3 mois)', 10, false],
+            ['COURT', 'Court terme (3 à 6 mois)', 20, false],
+            ['MOYEN', 'Moyen terme (6 à 12 mois)', 30, false],
+            ['LONG', 'Long terme (plus de 12 mois)', 40, false],
+        ]);
+
+        // besoins §14 : [code, libellé, ordre, systeme]
+        $this->upsert('besoins', ['code', 'libelle', 'ordre', 'systeme'], [
+            ['COMPTA', 'Comptabilité', 10, false],
+            ['GESTION_CO', 'Gestion commerciale', 20, false],
+            ['PAIE', 'Paie', 30, false],
+            ['IMMO', 'Immobilisations', 40, false],
+            ['CRM', 'CRM', 50, false],
+        ]);
+
         // statuts_lead : [code, libellé, categorie, ordre, systeme]
         $this->upsert('statuts_lead', ['code', 'libelle', 'categorie', 'ordre', 'systeme'], [
             ['NOUVEAU', 'Nouveau', 'Ouvert', 10, true],

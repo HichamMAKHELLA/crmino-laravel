@@ -79,6 +79,12 @@ class LeadController extends Controller
         // §15 : le palier se dérive du score. « Non scoré » n'est PAS un zéro.
         $palier = $lead->score !== null ? PalierScore::pour($lead->score) : null;
 
+        // §15 : le score SUGGÉRÉ (jamais écrit d'office) et son détail, si la
+        // fiche n'est pas convertie.
+        $suggestion = $lead->societe_id === null
+            ? app(\App\Support\ScoreSuggestion::class)->pour($lead)
+            : null;
+
         return Inertia::render('Leads/Show', [
             // RG-LEA-003 : un lead converti ne se modifie ni ne se reconvertit ;
             // la fiche renvoie vers la société issue du lead.
@@ -139,6 +145,7 @@ class LeadController extends Controller
                 'borne_max' => $palier->borne_max,
                 'couleur' => $palier->couleur,
             ] : null,
+            'scoreSuggere' => $suggestion,
             'contacts' => $lead->contacts->map(fn ($c) => [
                 'id' => $c->id,
                 'nom' => trim(($c->prenom ?? '').' '.$c->nom),
