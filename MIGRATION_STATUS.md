@@ -68,7 +68,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | 8 | Activités, tâches, notifications, campagnes, catalogue | **Terminée** (activités, tâches, notifications, campagnes, catalogue §28 + §47) |
 | 9 | Jobs/planif (`--notifier` → Scheduler/Queue) + Outbox Sage | **Outbox §48 + notifications d'état §36 faites** (Scheduler `crmino:notifier`, idempotent) ; reste purge de rétention |
 | 10 | Rapports, tableaux de bord, import Excel, droit d'accès (§72) | **Terminée** (accueil §77, rapports §75/§38/§39/§76, droit d'accès §72, import CSV + .xlsx §42 deux temps + atomique) |
-| 11 | Tests de parité Pest + Vitest | À faire |
+| 11 | Tests de parité Pest + Vitest | **Socle Vitest fait** (config séparée, mock Inertia, 14 tests de composant, filet prouvé par mutation) ; reste couvrir les autres écrans |
 | 12 | Bascule production | À faire |
 
 ## Matrice de parité fonctionnelle (§31 — à remplir module par module)
@@ -139,6 +139,13 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
   devient un test dans sa phase.
 - **P0** : stratégie de migration des DONNÉES existantes (le .NET a un volume de
   recette ; MySQL repart de zéro — définir l'export/import si reprise voulue).
+
+## Tests front (Vitest)
+- Socle : `vitest.config.ts` séparé de `vite.config.ts` (greffons Laravel/Inertia
+  inutiles sous jsdom), `resources/js/test/preparer.ts` mocke `@inertiajs/vue3`.
+  Scripts `npm test` / `npm run test:watch`. Vitest 4 (fourni par vite-plus).
+- Couverts : `NotesInternes` (8), `Documents` (6). Filet prouvé par mutation.
+- Reste : Kanban glisser-déposer, Import (aperçu/deux temps), fiches, listes.
 
 ## Dette technique
 - (aucune pour l'instant)
