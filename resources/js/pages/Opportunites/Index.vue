@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { Head, Link, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import { computed, ref, watch } from 'vue';
 
 interface Carte {
     id: number;
+    etape_id: number;
     intitule: string;
     societe: string | null;
     montant_ht: number;
@@ -18,14 +19,57 @@ interface Colonne {
     cartes: Carte[];
 }
 
-defineProps<{ colonnes: Colonne[] }>();
+const props = defineProps<{ colonnes: Colonne[] }>();
 
 const page = usePage();
 const succes = computed(() => (page.props.flash as { success?: string } | undefined)?.success);
+const erreur = computed(() => (page.props.flash as { error?: string } | undefined)?.error);
 
 const mad = new Intl.NumberFormat('fr-MA', { style: 'currency', currency: 'MAD', maximumFractionDigits: 0 });
 function montant(v: number): string {
     return mad.format(v);
+}
+
+// Copie locale réactive : le glisser-déposer met à jour OPTIMISTE, puis le
+// serveur confirme. En cas d'échec, la carte revient en place (§64).
+const colonnes = ref<Colonne[]>(structuredClone(props.colonnes));
+watch(() => props.colonnes, (v) => { colonnes.value = structuredClone(v); });
+
+const enVol = ref<number | null>(null);
+function debut(carte: Carte) {
+    enVol.value = carte.id;
+}
+function deposer(cibleColonne: Colonne) {
+    const id = enVol.value;
+    enVol.value = null;
+    if (id === null) return;
+
+    // Retrouver la carte et sa colonne d'origine.
+    const source = colonnes.value.find((c) => c.cartes.some((k) => k.id === id));
+    if (!source || source.id === cibleColonne.id) return;
+    const carte = source.cartes.find((k) => k.id === id)!;
+
+    // Déplacement optimiste.
+    source.cartes = source.cartes.filter((k) => k.id !== id);
+    carte.etape_id = cibleColonne.id;
+    cibleColonne.cartes = [...cibleColonne.cartes, carte];
+    recalculer();
+
+    router.post(`/opportunites/${id}/etape`, { etape_id: cibleColonne.id }, {
+        preserveScroll: true,
+        preserveState: true,
+        // Sur échec (RG-OPP-005…), Inertia recharge les props ; le watch remet
+        // la copie locale dans l'état serveur — la carte revient en place.
+        onError: () => rendre(),
+    });
+}
+function recalculer() {
+    for (const c of colonnes.value) {
+        c.total_pondere = c.cartes.reduce((s, k) => s + k.montant_pondere, 0);
+    }
+}
+function rendre() {
+    colonnes.value = structuredClone(props.colonnes);
 }
 
 defineOptions({
@@ -45,6 +89,9 @@ defineOptions({
         >
             {{ succes }}
         </div>
+        <div v-if="erreur" class="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {{ erreur }}
+        </div>
 
         <div class="flex items-baseline justify-between">
             <h1 class="text-xl font-semibold">Pipeline</h1>
@@ -56,12 +103,15 @@ defineOptions({
             </Link>
         </div>
 
-        <!-- Board : une colonne par étape ouverte (§64). Défile horizontalement. -->
+        <!-- Board : une colonne par étape ouverte (§64). Glisser-déposer une carte
+             d'une colonne à l'autre. Défile horizontalement. -->
         <div class="flex flex-1 gap-4 overflow-x-auto pb-2">
             <div
                 v-for="col in colonnes"
                 :key="col.id"
                 class="flex w-72 shrink-0 flex-col gap-3 rounded-xl border border-sidebar-border/70 bg-muted/30 p-3 dark:border-sidebar-border"
+                @dragover.prevent
+                @drop.prevent="deposer(col)"
             >
                 <div class="flex items-baseline justify-between border-b border-sidebar-border/50 pb-2">
                     <span class="text-sm font-semibold" :style="{ color: col.couleur ?? undefined }">
@@ -75,7 +125,11 @@ defineOptions({
                     v-for="c in col.cartes"
                     :key="c.id"
                     :href="`/opportunites/${c.id}`"
-                    class="flex flex-col gap-1 rounded-lg border border-sidebar-border/70 bg-background p-3 text-sm hover:border-primary/50 dark:border-sidebar-border"
+                    draggable="true"
+                    class="flex cursor-grab flex-col gap-1 rounded-lg border border-sidebar-border/70 bg-background p-3 text-sm hover:border-primary/50 active:cursor-grabbing dark:border-sidebar-border"
+                    :class="{ 'opacity-50': enVol === c.id }"
+                    @dragstart="debut(c)"
+                    @dragend="enVol = null"
                 >
                     <p class="font-medium">{{ c.intitule }}</p>
                     <p class="text-xs text-muted-foreground">{{ c.societe ?? '—' }}</p>

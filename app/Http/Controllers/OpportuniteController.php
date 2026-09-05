@@ -47,6 +47,7 @@ class OpportuniteController extends Controller
                 'total_pondere' => (float) $cartes->sum('montant_pondere'),
                 'cartes' => $cartes->map(fn ($o) => [
                     'id' => $o->id,
+                    'etape_id' => $o->etape_id,
                     'intitule' => $o->intitule,
                     'societe' => $o->societe?->raison_sociale,
                     'montant_ht' => (float) $o->montant_ht,
@@ -168,6 +169,42 @@ class OpportuniteController extends Controller
         });
 
         return back()->with('success', 'Détail de l\'affaire enregistré.');
+    }
+
+    /**
+     * §64 : glisser-déposer sur le Kanban — change l'ÉTAPE d'une affaire OUVERTE.
+     * Gagné/Perdu ne sont pas des colonnes (ils ont leurs routes) : on ne déplace
+     * qu'entre étapes OUVERTES. RG-OPP-005 : une affaire close ne change plus
+     * d'étape — le board ne la montre pas, mais le serveur le refuse quand même.
+     * La probabilité n'est PAS réécrite (RG-OPP-004 : elle peut être surchargée).
+     */
+    public function deplacer(Request $request, Opportunite $opportunite): RedirectResponse
+    {
+        abort_unless($request->user()->peut('opportunite.modifier'), 403);
+        abort_unless($this->dansPerimetre($request, $opportunite, 'opportunite.modifier'), 404);
+
+        if ($opportunite->estClose()) {
+            return back()->with('error', 'RG-OPP-005 : cette affaire est close. Son étape ne change plus.');
+        }
+
+        $data = $request->validate(['etape_id' => ['required', 'integer', 'exists:etapes_pipeline,id']]);
+
+        // La cible doit être une étape OUVERTE : draguer vers une étape close
+        // ferait naître une affaire close sans passer par le gain/la perte.
+        $etape = EtapePipeline::query()->where('id', $data['etape_id'])
+            ->where('categorie', 'Ouverte')->first();
+        if ($etape === null) {
+            return back()->with('error', 'Étape invalide pour un déplacement.');
+        }
+
+        if ($etape->id !== $opportunite->etape_id) {
+            $ancienne = $opportunite->etape?->libelle;
+            $opportunite->etape_id = $etape->id;
+            $opportunite->save();
+            Audit::tracer($request->user()->id, Audit::MODIFICATION, 'Opportunite', $opportunite->id, 'etape', $ancienne, $etape->libelle);
+        }
+
+        return back()->with('success', "Affaire déplacée vers « {$etape->libelle} ».");
     }
 
     public function gagner(Request $request, Opportunite $opportunite, ClotureOpportunite $cloture): RedirectResponse
