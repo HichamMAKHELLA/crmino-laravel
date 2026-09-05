@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import FriseActivites from '@/components/FriseActivites.vue';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 interface Societe {
     id: number; numero: string; raison_sociale: string; etat: string;
@@ -20,10 +20,18 @@ interface ActiviteLigne {
 }
 interface TypeActiviteOption { id: number; libelle: string }
 
-defineProps<{ societe: Societe; contacts: ContactLigne[]; activites: ActiviteLigne[]; typesActivite: TypeActiviteOption[] }>();
+const props = defineProps<{ societe: Societe; contacts: ContactLigne[]; activites: ActiviteLigne[]; typesActivite: TypeActiviteOption[]; ciblesEtat: string[] }>();
 
 const page = usePage();
 const succes = computed(() => (page.props.flash as { success?: string } | undefined)?.success);
+const erreur = computed(() => (page.props.flash as { error?: string } | undefined)?.error);
+
+// §32 : changer l'état de la relation (RG-SOC-001). Une cible présélectionnée.
+const nouvelEtat = ref<string>(props.ciblesEtat[0] ?? '');
+function changerEtat() {
+    if (!nouvelEtat.value) return;
+    router.post(`/societes/${props.societe.id}/etat`, { etat: nouvelEtat.value }, { preserveScroll: true });
+}
 
 const teinteEtat: Record<string, string> = {
     Prospect: 'bg-primary/10 text-primary',
@@ -51,6 +59,9 @@ defineOptions({
         >
             {{ succes }}
         </div>
+        <div v-if="erreur" class="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {{ erreur }}
+        </div>
 
         <!-- En-tête -->
         <div class="flex flex-wrap items-start justify-between gap-4">
@@ -58,9 +69,24 @@ defineOptions({
                 <p class="font-mono text-xs text-muted-foreground">{{ societe.numero }}</p>
                 <h1 class="text-2xl font-semibold">{{ societe.raison_sociale }}</h1>
             </div>
-            <span class="rounded px-2 py-1 text-sm" :class="teinteEtat[societe.etat] ?? 'bg-muted'">
-                {{ societe.etat }}
-            </span>
+            <div class="flex items-center gap-2">
+                <span class="rounded px-2 py-1 text-sm" :class="teinteEtat[societe.etat] ?? 'bg-muted'">
+                    {{ societe.etat }}
+                </span>
+                <!-- §32 : l'état de la relation. La société reste visible et comptée (RG-SOC-001). -->
+                <template v-if="ciblesEtat.length">
+                    <select v-model="nouvelEtat" class="rounded-md border bg-background px-2 py-1 text-sm">
+                        <option v-for="c in ciblesEtat" :key="c" :value="c">{{ c }}</option>
+                    </select>
+                    <button
+                        type="button"
+                        class="rounded-md border border-sidebar-border/70 px-3 py-1 text-sm hover:bg-muted dark:border-sidebar-border"
+                        @click="changerEtat"
+                    >
+                        Changer l'état
+                    </button>
+                </template>
+            </div>
         </div>
 
         <!-- Résumé -->

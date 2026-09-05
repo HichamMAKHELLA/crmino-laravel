@@ -6,7 +6,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Referentiels\TypeActivite;
 use App\Models\Societe;
+use App\Support\Audit;
+use App\Support\TransitionSociete;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -79,6 +83,8 @@ class SocieteController extends Controller
                 'prochaine_action_libelle' => $a->prochaine_action_libelle,
             ]),
             'typesActivite' => TypeActivite::query()->where('actif', true)->orderBy('ordre')->get(['id', 'libelle'])->map(fn ($t) => ['id' => $t->id, 'libelle' => $t->libelle]),
+            // §32 : les états atteignables depuis l'état courant (RG-SOC-001).
+            'ciblesEtat' => $request->user()->peut('societe.modifier') ? TransitionSociete::cibles($societe->etat) : [],
             'contacts' => $societe->contacts->map(fn ($c) => [
                 'id' => $c->id,
                 'nom' => trim(($c->prenom ?? '').' '.$c->nom),
@@ -89,5 +95,49 @@ class SocieteController extends Controller
                 'principal' => $c->principal,
             ]),
         ]);
+    }
+
+    /**
+     * §32 : change l'ÉTAT de la relation (RG-SOC-001). UNE seule route pour tous
+     * les sens — le jugement vit dans TransitionSociete, deux routes le
+     * dédoubleraient. Trace ChangementStatut (le §46 le distingue de Modification).
+     * RG-SOC-001 : le passage à Client pose la date de passage si elle manque.
+     */
+    public function etat(Request $request, Societe $societe): RedirectResponse
+    {
+        abort_unless($request->user()->peut('societe.modifier'), 403);
+        abort_unless(
+            Societe::query()->whereKey($societe->id)
+                ->dansPerimetre($request->user(), 'societe.modifier')->exists(),
+            404,
+        );
+
+        $data = $request->validate([
+            'etat' => ['required', 'string', 'in:'.implode(',', TransitionSociete::ETATS)],
+        ]);
+
+        $actuel = $societe->etat;
+        $cible = $data['etat'];
+
+        if (! TransitionSociete::admise($actuel, $cible)) {
+            return back()->with('error',
+                "RG-SOC-001 : une société ne passe pas de « {$actuel} » à « {$cible} ». ".
+                'Un client ne redevient pas prospect : rendez-le inactif.');
+        }
+
+        if ($actuel === $cible) {
+            return back();
+        }
+
+        $societe->etat = $cible;
+        // RG-SOC-001 : Client porte sa date de passage — elle survit ensuite (§72).
+        if ($cible === 'Client' && $societe->devenu_client_le === null) {
+            $societe->devenu_client_le = Carbon::now();
+        }
+        $societe->save();
+
+        Audit::tracer($request->user()->id, Audit::CHANGEMENT_STATUT, 'Societe', $societe->id, 'etat', $actuel, $cible);
+
+        return back()->with('success', "État de la relation : {$cible}.");
     }
 }

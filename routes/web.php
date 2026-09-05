@@ -26,6 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('societes', [SocieteController::class, 'index'])->name('societes.index');
     Route::get('societes/{societe}', [SocieteController::class, 'show'])->name('societes.show');
+    Route::post('societes/{societe}/etat', [SocieteController::class, 'etat'])->name('societes.etat');
 
     Route::get('opportunites', [OpportuniteController::class, 'index'])->name('opportunites.index');
     Route::get('opportunites/create', [OpportuniteController::class, 'create'])->name('opportunites.create');

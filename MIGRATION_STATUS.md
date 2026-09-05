@@ -63,7 +63,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | 3 | Rôles + périmètre (`PerimetreScope`, `RG-HAB-*`) | **Tranche 1 faite** (identité, portée, scope) ; reste permissions + matrice §78 |
 | 4 | Référentiels administrables (§50, `RG-REF-*`) | **Tranches 1-2 faites** (8 auto-contenus + géographique + fonctions) ; reste score, besoins, catalogue, alertes |
 | 5 | Leads + doublons + qualification + score (`RG-LEA-*`, `RG-DOU`, `RG-IND`) | **Tranches 1-2 faites** (table, périmètre prouvé, numérotation, écran Inertia, doublons §41) ; reste édition qualif./score, suggestion de score |
-| 6 | Sociétés + contacts + conversion (`RG-SOC`, §31) | **Tranches 1-2 faites** (table, périmètre, liste, conversion §31 avec bascule des contacts, fiches lead/société) ; reste bascule activités/tâches/documents (§8), état §32, édition |
+| 6 | Sociétés + contacts + conversion (`RG-SOC`, §31) | **Tranches 1-3 faites** (table, périmètre, liste, conversion §31 avec bascule contacts+activités, fiches, état §32 RG-SOC-001) ; reste bascule tâches/documents/commentaires (§8), édition |
 | 7 | Opportunités + lignes + pipeline (`RG-OPP-001..007`) | **Tranches 1-3 faites** (pondéré généré, création, board, fiche, clôture RG-OPP-002/003/005, lignes §28 + RG-OPP-006) ; reste glisser-déposer §64 |
 | 8 | Activités, tâches, notifications, campagnes, catalogue | **Terminée** (activités, tâches, notifications, campagnes, catalogue §28 + §47) |
 | 9 | Jobs/planif (`--notifier` → Scheduler/Queue) + Outbox Sage | À faire |
@@ -102,7 +102,8 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Conversion §31 (lead -> société, bascule des contacts) | Oui | Oui | Navigateur | Terminé (autres familles -> §8) |
 | RG-LEA-003 (lead converti : bandeau + renvoi société) | Oui | Oui | Navigateur | Terminé |
 | Fiche société (§58) | Oui | Oui | Navigateur | Terminé |
-| Bascule activités/tâches/documents/commentaires / état §32 / édition | Oui | Non | — | À faire |
+| État de la relation §32 (RG-SOC-001, trace ChangementStatut) | Oui | Oui | OK | Terminé (mutation : Client→Prospect) |
+| Bascule tâches/documents/commentaires (§8) / édition société | Oui | Non | — | À faire |
 | Opportunités : table + modèle + numérotation OPP | Oui | Oui | OK | Terminé |
 | RG-OPP-001 : montant pondéré (colonne générée) | Oui | Oui | OK | Terminé (mutation schéma) |
 | Ouverture d'une affaire (§25) + RG-OPP-004 (proba surchargée) | Oui | Oui | Navigateur | Terminé |
