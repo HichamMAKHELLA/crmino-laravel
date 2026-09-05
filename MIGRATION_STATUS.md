@@ -69,7 +69,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | 9 | Jobs/planif (`--notifier` → Scheduler/Queue) + Outbox Sage | **Outbox §48 + notifications d'état §36 faites** (Scheduler `crmino:notifier`, idempotent) ; reste purge de rétention |
 | 10 | Rapports, tableaux de bord, import Excel, droit d'accès (§72) | **Terminée** (accueil §77, rapports §75/§38/§39/§76, droit d'accès §72, import CSV + .xlsx §42 deux temps + atomique) |
 | 11 | Tests de parité Pest + Vitest | **Socle + écrans clés faits** (26 tests : NotesInternes, Documents, Kanban §64, Import §42) ; reste fiches/listes |
-| 12 | Bascule production | À faire |
+| 12 | Bascule production | **Préparé** (guide cPanel/MariaDB, .env.production, ProductionSeeder, crmino:creer-admin, cron scheduler ; caches prod vérifiés) ; reste l'exécution sur le serveur |
 
 ## Matrice de parité fonctionnelle (§31 — à remplir module par module)
 | Fonction | .NET | Laravel | Test | Statut |
@@ -136,6 +136,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Import .xlsx §42 (LectureClasseur PhpSpreadsheet, valeur calculée) | Oui | Oui | OK | Terminé (mutation : formule vs valeur) |
 | Outbox Sage §48 (dépôt au gain dans la transaction, RG-OPP-003) | Oui | Oui | OK | Terminé (mutation : dépôt retiré) |
 | Authentification | Oui | (kit) | — | À reprendre en Phase 2 |
+| Déploiement §12 (guide cPanel, ProductionSeeder, bootstrap admin §5, cron) | Oui | Oui | OK | Terminé (3 tests admin ; à exécuter sur le serveur) |
 
 ## Problèmes / à confirmer
 - **P0** : portage des 8 garanties SQL Server → MySQL (ADR-001). Chaque ligne
