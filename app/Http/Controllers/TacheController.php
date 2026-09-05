@@ -92,7 +92,7 @@ class TacheController extends Controller
         // §36 : une tâche assignée à QUELQU'UN D'AUTRE le notifie. On ne se
         // notifie pas soi-même — la liste cesserait d'être lue.
         if ($assigneeId !== $request->user()->id) {
-            Notifications::notifier($assigneeId, 'Tâche assignée', $tache->titre, 'Tache', $tache->id);
+            Notifications::notifier($assigneeId, 'Tâche assignée', $tache->titre, 'Tache', $tache->id, \App\Models\Notification::TACHE_ASSIGNEE);
         }
 
         return back()->with('success', 'Tâche créée.');

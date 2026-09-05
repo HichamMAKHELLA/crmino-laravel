@@ -13,12 +13,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Notification extends Model
 {
+    /** Types (§36). Ceux d'ÉTAT — produits par une horloge — portent leur garde d'idempotence. */
+    public const GENERIQUE = 'Generique';
+    public const TACHE_ASSIGNEE = 'TacheAssignee';
+    public const RAPPEL_RENDEZ_VOUS = 'RappelRendezVous';
+    public const TACHE_EN_RETARD = 'TacheEnRetard';
+
     protected $table = 'notifications_crmino';
 
     public $timestamps = false;
 
     protected $fillable = [
-        'utilisateur_id', 'titre', 'texte', 'cible_type', 'cible_id', 'lue_le', 'cree_le',
+        'utilisateur_id', 'type', 'titre', 'texte', 'cible_type', 'cible_id', 'lue_le', 'cree_le',
     ];
 
     protected function casts(): array

@@ -66,7 +66,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | 6 | Sociétés + contacts + conversion (`RG-SOC`, §31) | **Tranches 1-5 faites** (table, périmètre, liste, conversion §31 avec bascule **complète** §8 contacts+activités+tâches+documents+commentaires, fiches, état §32 RG-SOC-001) ; reste écrans documents §44 / notes §45, édition |
 | 7 | Opportunités + lignes + pipeline (`RG-OPP-001..007`) | **Terminée** (pondéré généré, création, board, fiche, clôture RG-OPP-002/003/005, lignes §28 + RG-OPP-006, glisser-déposer §64 RG-OPP-005) |
 | 8 | Activités, tâches, notifications, campagnes, catalogue | **Terminée** (activités, tâches, notifications, campagnes, catalogue §28 + §47) |
-| 9 | Jobs/planif (`--notifier` → Scheduler/Queue) + Outbox Sage | **Outbox §48 faite** (dépôt au gain, dans la transaction) ; reste jobs planifiés (notifications d'état, purge) |
+| 9 | Jobs/planif (`--notifier` → Scheduler/Queue) + Outbox Sage | **Outbox §48 + notifications d'état §36 faites** (Scheduler `crmino:notifier`, idempotent) ; reste purge de rétention |
 | 10 | Rapports, tableaux de bord, import Excel, droit d'accès (§72) | **Terminée** (accueil §77, rapports §75/§38/§39/§76, droit d'accès §72, import CSV + .xlsx §42 deux temps + atomique) |
 | 11 | Tests de parité Pest + Vitest | À faire |
 | 12 | Bascule production | À faire |
@@ -121,6 +121,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Conversion §31 : bascule des activités (en plus des contacts) | Oui | Oui | OK | Terminé |
 | Tâches §20/§21 : « Mes tâches », tri, terminaison | Oui | Oui | OK | Terminé |
 | Notifications §36 : production, centre, lu/tout-lu | Oui | Oui | OK | Terminé |
+| Notifications d'état §36 (rappel RDV, tâche en retard) + Scheduler | Oui | Oui | OK | Terminé (2 mutations : idempotence, garde de type) |
 | Campagnes §12 : liste, fiche ROI (RG-IND-002), création | Oui | Oui | OK | Terminé |
 | Catalogue §28 (Famille/Gamme/Produit, retrait, réactivation §47) | Oui | Oui | OK | Terminé |
 | Audit §46 : journal ajout-seul, tracerChamps, écran de lecture | Oui | Oui | OK | Terminé (socle ; producteurs à étendre) |

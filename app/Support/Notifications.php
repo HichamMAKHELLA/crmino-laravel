@@ -18,9 +18,11 @@ final class Notifications
         ?string $texte = null,
         ?string $cibleType = null,
         ?int $cibleId = null,
+        string $type = Notification::GENERIQUE,
     ): Notification {
         return Notification::create([
             'utilisateur_id' => $destinataireId,
+            'type' => $type,
             'titre' => $titre,
             'texte' => $texte,
             'cible_type' => $cibleType,
