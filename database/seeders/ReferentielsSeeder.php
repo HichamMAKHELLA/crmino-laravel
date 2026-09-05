@@ -106,6 +106,21 @@ class ReferentielsSeeder extends Seeder
             ['AUTRE', 'Autre', 999, true],
         ]);
 
+        // parametres_alerte §35 : [code, libellé, délai (j), ordre, systeme].
+        // Les huit codes sont nommés par le calcul — ni création ni suppression.
+        $this->upsert('parametres_alerte', ['code', 'libelle', 'delai_jours', 'ordre', 'systeme'], [
+            ['LEAD_SANS_ACTIVITE', 'Prospect sans activité depuis X jours', 7, 10, true],
+            ['OPP_SANS_ACTIVITE', 'Opportunité sans activité depuis X jours', 10, 20, true],
+            ['DEVIS_SANS_RELANCE', 'Devis sans relance depuis X jours', 3, 30, true],
+            ['OPP_DATE_DEPASSEE', 'Opportunité dépassant sa date de clôture', 0, 40, true],
+            ['TACHE_EN_RETARD', 'Tâche en retard', 0, 50, true],
+            ['CONTRAT_ECHEANCE', 'Contrat arrivant à échéance dans X jours', 60, 60, true],
+            ['OPP_SANS_ACTION', 'Opportunité importante sans prochaine action', 5, 70, true],
+            ['RELANCE_SANS_REPONSE', 'Relance sans réponse depuis X jours', 7, 80, true],
+        ]);
+        // OPP_SANS_ACTION lit un SEUIL de montant (§35).
+        DB::table('parametres_alerte')->where('code', 'OPP_SANS_ACTION')->update(['seuil_montant' => 100000]);
+
         // criteres_score §15 : [code, libellé, poids, ordre, systeme] — total = 100.
         $this->upsert('criteres_score', ['code', 'libelle', 'poids', 'ordre', 'systeme'], [
             ['BUDGET', 'Budget identifié', 15, 15, true],

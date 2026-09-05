@@ -83,7 +83,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Référentiels moteur + 8 auto-contenus (sources, statuts, étapes, motifs…) | Oui | Oui | OK | Terminé |
 | Référentiels géographiques (Pays/Région/Ville) + fonctions | Oui | Oui | OK | Terminé |
 | Référentiel types_document (§44, DEVIS/PROPOSITION socle §15) | Oui | Oui | OK | Terminé |
-| Référentiels alertes (§35) | Oui | Non | — | À faire |
+| Alertes commerciales §35 (paramétrage, désactivée→null, sans producteur, seuil borné) | Oui | Oui | OK | Terminé (2 mutations : désactivée→null, seuil réservé) |
 | Leads : schéma + modèle + numérotation §10 | Oui | Oui | OK | Terminé |
 | Leads : périmètre par ligne (RG-HAB-001, vrai modèle) | Oui | Oui | OK | Terminé |
 | Leads : écran liste (Inertia + Policy) | Oui | Oui | OK | Terminé |
