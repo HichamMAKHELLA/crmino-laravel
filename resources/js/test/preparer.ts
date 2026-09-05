@@ -1,5 +1,6 @@
 import { config } from '@vue/test-utils';
 import { vi } from 'vitest';
+import { reactive } from 'vue';
 
 /**
  * Préparation des tests de composant (§11). Inertia (`@inertiajs/vue3`) est
@@ -18,13 +19,15 @@ export const routerMock = {
 vi.mock('@inertiajs/vue3', () => ({
     router: routerMock,
     usePage: () => ({ props: { flash: {} } }),
-    useForm: (data: Record<string, unknown>) => ({
+    // useForm partage les mêmes spies que router : on vérifie l'URL soumise.
+    // reactive() pour que v-model déclenche les `computed` qui en dépendent.
+    useForm: (data: Record<string, unknown>) => reactive({
         ...data,
         errors: {},
         processing: false,
-        post: vi.fn(),
-        put: vi.fn(),
-        delete: vi.fn(),
+        post: routerMock.post,
+        put: routerMock.put,
+        delete: routerMock.delete,
     }),
     Head: { name: 'Head', template: '<div><slot /></div>' },
     Link: { name: 'Link', props: ['href'], template: '<a :href="href"><slot /></a>' },

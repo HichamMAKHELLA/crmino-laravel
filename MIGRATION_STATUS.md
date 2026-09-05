@@ -68,7 +68,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | 8 | Activités, tâches, notifications, campagnes, catalogue | **Terminée** (activités, tâches, notifications, campagnes, catalogue §28 + §47) |
 | 9 | Jobs/planif (`--notifier` → Scheduler/Queue) + Outbox Sage | **Outbox §48 + notifications d'état §36 faites** (Scheduler `crmino:notifier`, idempotent) ; reste purge de rétention |
 | 10 | Rapports, tableaux de bord, import Excel, droit d'accès (§72) | **Terminée** (accueil §77, rapports §75/§38/§39/§76, droit d'accès §72, import CSV + .xlsx §42 deux temps + atomique) |
-| 11 | Tests de parité Pest + Vitest | **Socle + écrans clés faits** (26 tests : NotesInternes, Documents, Kanban §64, Import §42) ; reste fiches/listes |
+| 11 | Tests de parité Pest + Vitest | **Socle + écrans + fiches faits** (44 tests : composants, Kanban, Import, fiches lead/société/opportunité) ; reste listes |
 | 12 | Bascule production | **Préparé** (guide cPanel/MariaDB, .env.production, ProductionSeeder, crmino:creer-admin, cron scheduler ; caches prod vérifiés) ; reste l'exécution sur le serveur |
 
 ## Matrice de parité fonctionnelle (§31 — à remplir module par module)
@@ -148,9 +148,11 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 - Socle : `vitest.config.ts` séparé de `vite.config.ts` (greffons Laravel/Inertia
   inutiles sous jsdom), `resources/js/test/preparer.ts` mocke `@inertiajs/vue3`.
   Scripts `npm test` / `npm run test:watch`. Vitest 4 (fourni par vite-plus).
-- Couverts : `NotesInternes` (8), `Documents` (6), Kanban §64 (5, glisser-déposer
-  optimiste), Import §42 (7, deux temps). 26 tests. Filet prouvé par mutation.
-- Reste : fiches (lead/société/opportunité), listes (prospection, sociétés).
+- Couverts : `NotesInternes` (8), `Documents` (6), Kanban §64 (5), Import §42 (7),
+  fiche opportunité (7), fiche lead (6), fiche société (5). **44 tests.**
+- Le mock `useForm` de `preparer.ts` est REACTIVE et route post/put/delete sur
+  les spies partagés — les soumissions et les `computed` (bloc Sage…) se testent.
+- Reste : listes (prospection, sociétés, campagnes), agenda.
 - Note : le Kanban clonait ses colonnes par `structuredClone` — fragile sur un
   proxy réactif (DataCloneError sous jsdom) ; passé à un clone JSON, robuste.
 
