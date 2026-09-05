@@ -31,9 +31,14 @@ function montant(v: number): string {
 }
 
 // Copie locale réactive : le glisser-déposer met à jour OPTIMISTE, puis le
-// serveur confirme. En cas d'échec, la carte revient en place (§64).
-const colonnes = ref<Colonne[]>(structuredClone(props.colonnes));
-watch(() => props.colonnes, (v) => { colonnes.value = structuredClone(v); });
+// serveur confirme. En cas d'échec, la carte revient en place (§64). Clone JSON
+// (les données sont purement JSON) : robuste sur un proxy réactif, là où
+// structuredClone lève.
+function cloner(v: Colonne[]): Colonne[] {
+    return JSON.parse(JSON.stringify(v));
+}
+const colonnes = ref<Colonne[]>(cloner(props.colonnes));
+watch(() => props.colonnes, (v) => { colonnes.value = cloner(v); });
 
 const enVol = ref<number | null>(null);
 function debut(carte: Carte) {
@@ -69,7 +74,7 @@ function recalculer() {
     }
 }
 function rendre() {
-    colonnes.value = structuredClone(props.colonnes);
+    colonnes.value = cloner(props.colonnes);
 }
 
 defineOptions({
