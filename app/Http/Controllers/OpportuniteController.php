@@ -255,6 +255,53 @@ class OpportuniteController extends Controller
         return back()->with('success', 'Affaire clôturée en perte.');
     }
 
+    /**
+     * §25 : modifie les CHAMPS d'une affaire. Liste BLANCHE — le propriétaire
+     * (élévation de privilège), l'étape et le statut (RG-OPP-002/005), la société
+     * (réécrirait l'attribution du CA §9/§76) sont EXCLUS du corps. RG-OPP-007 :
+     * le montant d'une affaire CLOSE est verrouillé — gagné il est le CA parti
+     * vers Sage, perdu il alimente le montant perdu du §38.
+     */
+    public function update(Request $request, Opportunite $opportunite): RedirectResponse
+    {
+        abort_unless($request->user()->peut('opportunite.modifier'), 403);
+        abort_unless($this->dansPerimetre($request, $opportunite, 'opportunite.modifier'), 404);
+
+        $data = $request->validate([
+            'intitule' => ['required', 'string', 'max:200'],
+            'montant_ht' => ['required', 'numeric', 'min:0'],
+            'probabilite' => ['nullable', 'integer', 'between:0,100'],
+            'date_cloture_estimee' => ['nullable', 'date'],
+            'commentaire' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        // RG-OPP-007 : sur une affaire close, le montant ne bouge plus.
+        if ($opportunite->estClose() && (float) $data['montant_ht'] !== (float) $opportunite->montant_ht) {
+            return back()->with('error', 'RG-OPP-007 : le montant d\'une affaire close ne se modifie plus.');
+        }
+
+        $avant = ['intitule' => $opportunite->intitule, 'montant_ht' => $opportunite->montant_ht, 'commentaire' => $opportunite->commentaire];
+
+        $opportunite->intitule = $data['intitule'];
+        $opportunite->commentaire = $data['commentaire'] ?? null;
+        // Montant, probabilité et date prévisionnelle n'ont de sens qu'ouvert.
+        if (! $opportunite->estClose()) {
+            $opportunite->montant_ht = $data['montant_ht'];
+            $opportunite->probabilite = $data['probabilite'] ?? $opportunite->probabilite;
+            $opportunite->date_cloture_estimee = $data['date_cloture_estimee'] ?? null;
+        }
+        $opportunite->modifie_par = $request->user()->id;
+        $opportunite->save();
+
+        Audit::tracerChamps($request->user()->id, 'Opportunite', $opportunite->id, [
+            'intitule' => [$avant['intitule'], $opportunite->intitule],
+            'montant_ht' => [$avant['montant_ht'], $opportunite->montant_ht],
+            'commentaire' => [$avant['commentaire'], $opportunite->commentaire],
+        ]);
+
+        return back()->with('success', 'Affaire modifiée.');
+    }
+
     private function dansPerimetre(Request $request, Opportunite $opportunite, string $permission): bool
     {
         return Opportunite::query()->whereKey($opportunite->id)

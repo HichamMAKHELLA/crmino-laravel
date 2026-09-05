@@ -96,6 +96,15 @@ class SocieteController extends Controller
             // §32 : les états atteignables depuis l'état courant (RG-SOC-001).
             'ciblesEtat' => $request->user()->peut('societe.modifier') ? TransitionSociete::cibles($societe->etat) : [],
             'moiId' => $request->user()->id,
+            'peutModifier' => $request->user()->peut('societe.modifier'),
+            'champs' => [
+                'ice' => $societe->ice,
+                'site_web' => $societe->site_web,
+                'telephone' => $societe->telephone,
+                'email' => $societe->email,
+                'adresse' => $societe->adresse,
+                'commentaire' => $societe->commentaire,
+            ],
             'peutDeposer' => $request->user()->peut('document.deposer'),
             'peutSupprimer' => $request->user()->peut('document.supprimer'),
             'typesDocument' => \App\Models\Referentiels\TypeDocument::query()->where('actif', true)->orderBy('ordre')
@@ -125,6 +134,47 @@ class SocieteController extends Controller
                 'principal' => $c->principal,
             ]),
         ]);
+    }
+
+    /**
+     * §18 : modifie les CHAMPS d'une société. La liste des champs est BLANCHE —
+     * l'état (route dédiée §32, RG-SOC-001), le propriétaire (societe.affecter,
+     * §17) et l'identifiant Sage (compte d'un autre système) sont EXCLUS : les
+     * accepter réécrirait une attribution ou un lien hors périmètre de ce geste.
+     * Le recalcul des colonnes §41 est automatique (hook du modèle) : sans lui,
+     * la détection de doublons trouverait encore l'ANCIENNE raison sociale.
+     */
+    public function update(Request $request, Societe $societe): RedirectResponse
+    {
+        abort_unless($request->user()->peut('societe.modifier'), 403);
+        abort_unless(
+            Societe::query()->whereKey($societe->id)
+                ->dansPerimetre($request->user(), 'societe.modifier')->exists(),
+            404,
+        );
+
+        $data = $request->validate([
+            'raison_sociale' => ['required', 'string', 'max:200'],
+            'ice' => ['nullable', 'string', 'max:15'],
+            'rc' => ['nullable', 'string', 'max:32'],
+            'secteur_id' => ['nullable', 'integer', 'exists:secteurs,id'],
+            'effectif' => ['nullable', 'integer', 'min:0'],
+            'ca_estime' => ['nullable', 'numeric', 'min:0'],
+            'adresse' => ['nullable', 'string', 'max:300'],
+            'ville_id' => ['nullable', 'integer', 'exists:villes,id'],
+            'site_web' => ['nullable', 'string', 'max:256'],
+            'telephone' => ['nullable', 'string', 'max:32'],
+            'email' => ['nullable', 'string', 'max:200'],
+            'commentaire' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $avant = $societe->only(array_keys($data));
+        $societe->fill($data)->save();
+
+        Audit::tracerChamps($request->user()->id, 'Societe', $societe->id, collect($data)
+            ->mapWithKeys(fn ($v, $k) => [$k => [$avant[$k] ?? null, $v]])->all());
+
+        return back()->with('success', 'Société modifiée.');
     }
 
     /**

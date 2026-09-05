@@ -42,6 +42,18 @@ function gagner() {
     }
 }
 
+// §25 : édition des champs. Le montant est verrouillé sur une affaire close (RG-OPP-007).
+const enEdition = ref(false);
+const edit = useForm({
+    intitule: props.opportunite.intitule,
+    montant_ht: props.opportunite.montant_ht,
+    probabilite: props.opportunite.probabilite,
+    commentaire: '',
+});
+function enregistrerChamps() {
+    edit.put(`/opportunites/${props.opportunite.id}`, { preserveScroll: true, onSuccess: () => { enEdition.value = false; } });
+}
+
 const perte = useForm({ motif_perte_id: null as number | null, commentaire: '' });
 const motifChoisi = computed(() => props.motifs.find((m) => m.id === perte.motif_perte_id));
 function perdre() {
@@ -117,6 +129,22 @@ defineOptions({
                 {{ libelleStatut[opportunite.statut] ?? opportunite.statut }}
             </span>
         </div>
+
+        <div v-if="peutModifier && ouverte">
+            <button type="button" class="rounded-md border border-sidebar-border/70 px-3 py-1 text-sm hover:bg-muted dark:border-sidebar-border" @click="enEdition = !enEdition">
+                {{ enEdition ? 'Fermer' : 'Modifier' }}
+            </button>
+        </div>
+        <!-- §25 : édition (propriétaire, étape, statut, société EXCLUS). -->
+        <form v-if="enEdition && ouverte" class="grid gap-3 rounded-xl border border-sidebar-border/70 p-4 sm:grid-cols-2 dark:border-sidebar-border" @submit.prevent="enregistrerChamps">
+            <label class="flex flex-col gap-1 text-sm sm:col-span-2"><span class="text-xs text-muted-foreground">Intitulé</span><input v-model="edit.intitule" type="text" class="rounded-md border bg-background px-3 py-1.5" /></label>
+            <label class="flex flex-col gap-1 text-sm"><span class="text-xs text-muted-foreground">Montant HT</span><input v-model.number="edit.montant_ht" type="number" min="0" step="0.01" class="rounded-md border bg-background px-3 py-1.5" /></label>
+            <label class="flex flex-col gap-1 text-sm"><span class="text-xs text-muted-foreground">Probabilité (%)</span><input v-model.number="edit.probabilite" type="number" min="0" max="100" class="rounded-md border bg-background px-3 py-1.5" /></label>
+            <label class="flex flex-col gap-1 text-sm sm:col-span-2"><span class="text-xs text-muted-foreground">Commentaire</span><textarea v-model="edit.commentaire" rows="2" class="rounded-md border bg-background px-3 py-1.5"></textarea></label>
+            <div class="sm:col-span-2">
+                <button type="submit" class="rounded-md bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90" :disabled="edit.processing">Enregistrer</button>
+            </div>
+        </form>
 
         <!-- Chiffres -->
         <div class="grid gap-4 rounded-xl border border-sidebar-border/70 p-4 sm:grid-cols-3 dark:border-sidebar-border">

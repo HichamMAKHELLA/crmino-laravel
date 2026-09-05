@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, router, usePage } from '@inertiajs/vue3';
+import { Head, router, useForm, usePage } from '@inertiajs/vue3';
 import FriseActivites from '@/components/FriseActivites.vue';
 import NotesInternes from '@/components/NotesInternes.vue';
 import Documents from '@/components/Documents.vue';
@@ -29,11 +29,29 @@ interface ActiviteLigne {
 }
 interface TypeActiviteOption { id: number; libelle: string }
 
+interface Champs { ice: string | null; site_web: string | null; telephone: string | null; email: string | null; adresse: string | null; commentaire: string | null }
+
 const props = defineProps<{
     societe: Societe; contacts: ContactLigne[]; activites: ActiviteLigne[]; typesActivite: TypeActiviteOption[];
     ciblesEtat: string[]; notes: Note[]; moiId: number;
     documents: Doc[]; typesDocument: TypeDocOption[]; peutDeposer: boolean; peutSupprimer: boolean;
+    peutModifier: boolean; champs: Champs;
 }>();
+
+// §18 : édition des champs. Le formulaire repart de la valeur en cours.
+const enEdition = ref(false);
+const edit = useForm({
+    raison_sociale: props.societe.raison_sociale,
+    ice: props.champs.ice ?? '',
+    site_web: props.champs.site_web ?? '',
+    telephone: props.champs.telephone ?? '',
+    email: props.champs.email ?? '',
+    adresse: props.champs.adresse ?? '',
+    commentaire: props.champs.commentaire ?? '',
+});
+function enregistrerChamps() {
+    edit.put(`/societes/${props.societe.id}`, { preserveScroll: true, onSuccess: () => { enEdition.value = false; } });
+}
 
 const page = usePage();
 const succes = computed(() => (page.props.flash as { success?: string } | undefined)?.success);
@@ -86,6 +104,14 @@ defineOptions({
                 <span class="rounded px-2 py-1 text-sm" :class="teinteEtat[societe.etat] ?? 'bg-muted'">
                     {{ societe.etat }}
                 </span>
+                <button
+                    v-if="peutModifier"
+                    type="button"
+                    class="rounded-md border border-sidebar-border/70 px-3 py-1 text-sm hover:bg-muted dark:border-sidebar-border"
+                    @click="enEdition = !enEdition"
+                >
+                    {{ enEdition ? 'Fermer' : 'Modifier' }}
+                </button>
                 <!-- §32 : l'état de la relation. La société reste visible et comptée (RG-SOC-001). -->
                 <template v-if="ciblesEtat.length">
                     <select v-model="nouvelEtat" class="rounded-md border bg-background px-2 py-1 text-sm">
@@ -101,6 +127,24 @@ defineOptions({
                 </template>
             </div>
         </div>
+
+        <!-- §18 : formulaire d'édition (l'état, le propriétaire et Sage sont EXCLUS). -->
+        <form v-if="enEdition" class="grid gap-3 rounded-xl border border-sidebar-border/70 p-4 sm:grid-cols-2 dark:border-sidebar-border" @submit.prevent="enregistrerChamps">
+            <label class="flex flex-col gap-1 text-sm sm:col-span-2">
+                <span class="text-xs text-muted-foreground">Raison sociale</span>
+                <input v-model="edit.raison_sociale" type="text" class="rounded-md border bg-background px-3 py-1.5" />
+                <span v-if="edit.errors.raison_sociale" class="text-xs text-destructive">{{ edit.errors.raison_sociale }}</span>
+            </label>
+            <label class="flex flex-col gap-1 text-sm"><span class="text-xs text-muted-foreground">ICE</span><input v-model="edit.ice" type="text" class="rounded-md border bg-background px-3 py-1.5" /></label>
+            <label class="flex flex-col gap-1 text-sm"><span class="text-xs text-muted-foreground">Site web</span><input v-model="edit.site_web" type="text" class="rounded-md border bg-background px-3 py-1.5" /></label>
+            <label class="flex flex-col gap-1 text-sm"><span class="text-xs text-muted-foreground">Téléphone</span><input v-model="edit.telephone" type="text" class="rounded-md border bg-background px-3 py-1.5" /></label>
+            <label class="flex flex-col gap-1 text-sm"><span class="text-xs text-muted-foreground">Courriel</span><input v-model="edit.email" type="text" class="rounded-md border bg-background px-3 py-1.5" /></label>
+            <label class="flex flex-col gap-1 text-sm sm:col-span-2"><span class="text-xs text-muted-foreground">Adresse</span><input v-model="edit.adresse" type="text" class="rounded-md border bg-background px-3 py-1.5" /></label>
+            <label class="flex flex-col gap-1 text-sm sm:col-span-2"><span class="text-xs text-muted-foreground">Commentaire</span><textarea v-model="edit.commentaire" rows="2" class="rounded-md border bg-background px-3 py-1.5"></textarea></label>
+            <div class="sm:col-span-2">
+                <button type="submit" class="rounded-md bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90" :disabled="edit.processing">Enregistrer</button>
+            </div>
+        </form>
 
         <!-- Résumé -->
         <div class="grid gap-4 rounded-xl border border-sidebar-border/70 p-4 sm:grid-cols-3 dark:border-sidebar-border">

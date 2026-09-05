@@ -104,12 +104,13 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | RG-LEA-003 (lead converti : bandeau + renvoi société) | Oui | Oui | Navigateur | Terminé |
 | Fiche société (§58) | Oui | Oui | Navigateur | Terminé |
 | État de la relation §32 (RG-SOC-001, trace ChangementStatut) | Oui | Oui | OK | Terminé (mutation : Client→Prospect) |
+| Édition société §18 (liste blanche, état/propriétaire/Sage exclus, recalcul §41) | Oui | Oui | OK | Terminé (mutation : exclusion) |
+| Édition opportunité §25 (liste blanche, RG-OPP-007 montant close) | Oui | Oui | OK | Terminé (mutation : RG-OPP-007) |
 | Conversion §31 : bascule des tâches (§8, §20) | Oui | Oui | OK | Terminé (mutation : bascule retirée) |
 | Tables documents §44 + commentaires §45 (+ types_document socle §15) | Oui | Oui | OK | Terminé |
 | Conversion §31 : bascule documents/commentaires (§8, polymorphe) | Oui | Oui | OK | Terminé (mutation : bascule retirée) |
 | Notes internes §45 (auteur seul, modifie_le, 404 pas 403, texte échappé) | Oui | Oui | OK | Terminé (mutation : garde auteur) |
 | Documents §44 (dépôt liste blanche, download pièce jointe MIME neutre, retrait §47) | Oui | Oui | OK | Terminé (mutation : liste blanche) |
-| Édition société / champs (§18) | Oui | Non | — | À faire |
 | Opportunités : table + modèle + numérotation OPP | Oui | Oui | OK | Terminé |
 | RG-OPP-001 : montant pondéré (colonne générée) | Oui | Oui | OK | Terminé (mutation schéma) |
 | Ouverture d'une affaire (§25) + RG-OPP-004 (proba surchargée) | Oui | Oui | Navigateur | Terminé |

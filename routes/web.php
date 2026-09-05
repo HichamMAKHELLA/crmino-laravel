@@ -29,12 +29,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('societes', [SocieteController::class, 'index'])->name('societes.index');
     Route::get('societes/{societe}', [SocieteController::class, 'show'])->name('societes.show');
+    Route::put('societes/{societe}', [SocieteController::class, 'update'])->name('societes.update');
     Route::post('societes/{societe}/etat', [SocieteController::class, 'etat'])->name('societes.etat');
 
     Route::get('opportunites', [OpportuniteController::class, 'index'])->name('opportunites.index');
     Route::get('opportunites/create', [OpportuniteController::class, 'create'])->name('opportunites.create');
     Route::post('opportunites', [OpportuniteController::class, 'store'])->name('opportunites.store');
     Route::get('opportunites/{opportunite}', [OpportuniteController::class, 'show'])->name('opportunites.show');
+    Route::put('opportunites/{opportunite}', [OpportuniteController::class, 'update'])->name('opportunites.update');
     Route::post('opportunites/{opportunite}/etape', [OpportuniteController::class, 'deplacer'])->name('opportunites.deplacer');
     Route::post('opportunites/{opportunite}/gagner', [OpportuniteController::class, 'gagner'])->name('opportunites.gagner');
     Route::post('opportunites/{opportunite}/perdre', [OpportuniteController::class, 'perdre'])->name('opportunites.perdre');
