@@ -68,7 +68,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | 8 | Activités, tâches, notifications, campagnes, catalogue | **Terminée** (activités, tâches, notifications, campagnes, catalogue §28 + §47) |
 | 9 | Jobs/planif (`--notifier` → Scheduler/Queue) + Outbox Sage | **Terminée** (Outbox §48, notifications d'état §36 via Scheduler, purge de rétention §72 `crmino:purger`) |
 | 10 | Rapports, tableaux de bord, import Excel, droit d'accès (§72) | **Terminée** (accueil §77, rapports §75/§38/§39/§76, droit d'accès §72, import CSV + .xlsx §42 deux temps + atomique) |
-| 11 | Tests de parité Pest + Vitest | **Front couvert** (65 tests : composants, Kanban, Import, 3 fiches, 3 listes, agenda, dashboard) |
+| 11 | Tests de parité Pest + Vitest | **Front couvert** (70 tests : composants, Kanban, Import, 3 fiches, 3 listes, agenda, dashboard, rapports) |
 | 12 | Bascule production | **Préparé** (guide cPanel/MariaDB, .env.production, ProductionSeeder, crmino:creer-admin, cron scheduler ; caches prod vérifiés) ; reste l'exécution sur le serveur |
 
 ## Matrice de parité fonctionnelle (§31 — à remplir module par module)
@@ -159,7 +159,9 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 - Agenda « Mes tâches » (6) : Sans échéance, « en retard » par un mot, terminer
   par sa route, création. Dashboard §77 (4) : salutation, tuiles, RG-IND-001
   (taux null ≠ 0 %, prouvé par mutation), accord pluriel.
-- Reste : rapports (déclaratif), Journal, Données personnelles.
+- Rapports (5) : les 4 onglets, probabilité effective §75, entonnoir §39,
+  ventilation §76, RG-IND-002 (taux « — » ≠ 0 %, prouvé par mutation).
+- Reste : Journal, Données personnelles (déclaratifs, couverts côté Pest).
 - Note : le Kanban clonait ses colonnes par `structuredClone` — fragile sur un
   proxy réactif (DataCloneError sous jsdom) ; passé à un clone JSON, robuste.
 
