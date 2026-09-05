@@ -66,7 +66,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | 6 | Sociétés + contacts + conversion (`RG-SOC`, §31) | **Tranches 1-5 faites** (table, périmètre, liste, conversion §31 avec bascule **complète** §8 contacts+activités+tâches+documents+commentaires, fiches, état §32 RG-SOC-001) ; reste écrans documents §44 / notes §45, édition |
 | 7 | Opportunités + lignes + pipeline (`RG-OPP-001..007`) | **Terminée** (pondéré généré, création, board, fiche, clôture RG-OPP-002/003/005, lignes §28 + RG-OPP-006, glisser-déposer §64 RG-OPP-005) |
 | 8 | Activités, tâches, notifications, campagnes, catalogue | **Terminée** (activités, tâches, notifications, campagnes, catalogue §28 + §47) |
-| 9 | Jobs/planif (`--notifier` → Scheduler/Queue) + Outbox Sage | À faire |
+| 9 | Jobs/planif (`--notifier` → Scheduler/Queue) + Outbox Sage | **Outbox §48 faite** (dépôt au gain, dans la transaction) ; reste jobs planifiés (notifications d'état, purge) |
 | 10 | Rapports, tableaux de bord, import Excel, droit d'accès (§72) | **Tranches 1-5 faites** (accueil §77, rapports §75/§38/§39/§76, droit d'accès §72) ; reste import Excel §42 |
 | 11 | Tests de parité Pest + Vitest | À faire |
 | 12 | Bascule production | À faire |
@@ -129,6 +129,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Droit d'accès §72 (dossier, trace Export, portée Toutes) | Oui | Oui | OK | Terminé |
 | Rapports §76 (ventilation par produit + couverture, RG-IND-001) | Oui | Oui | OK | Terminé (mutation : filtre produit, garde null) |
 | Import Excel §42 | Oui | Non | — | À faire |
+| Outbox Sage §48 (dépôt au gain dans la transaction, RG-OPP-003) | Oui | Oui | OK | Terminé (mutation : dépôt retiré) |
 | Authentification | Oui | (kit) | — | À reprendre en Phase 2 |
 
 ## Problèmes / à confirmer

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support;
 
 use App\Models\Opportunite;
+use App\Models\Outbox;
 use App\Models\Referentiels\EtapePipeline;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -38,6 +39,15 @@ final class ClotureOpportunite
                     'modifie_par' => $auteur->id,
                 ])->save();
             }
+
+            // §48 : le message Sage est déposé DANS cette transaction. Il partage
+            // le sort du gain — si la transaction est annulée, aucun message ne
+            // reste, et Sage ne reçoit jamais un « gagné » qui n'a pas eu lieu.
+            // Seul le GAIN alimente Sage : la perte n'a rien à y envoyer.
+            Outbox::create([
+                'type' => 'OpportuniteGagnee',
+                'charge' => json_encode(['opportunite_id' => $o->id, 'societe_id' => $o->societe_id]),
+            ]);
         });
     }
 
