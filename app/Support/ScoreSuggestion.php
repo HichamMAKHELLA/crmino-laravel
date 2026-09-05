@@ -76,6 +76,44 @@ final class ScoreSuggestion
         ];
     }
 
+    /**
+     * L'état de chaque critère, pour l'administration (§15, §50). L'écran de
+     * qualification dit au commercial que son plafond est tombé à 85 ; celui-ci
+     * dit à l'administrateur POURQUOI et quoi rétablir.
+     *
+     * @return array{total:int, total_atteignable:int, criteres:list<array{code:string, libelle:string, poids:int, source:?string, evaluable:bool, manque:?string}>}
+     */
+    public function diagnostic(): array
+    {
+        $disponible = $this->vocabulaireDisponible();
+        $criteres = CritereScore::query()->where('actif', true)->orderBy('ordre')->get();
+
+        $lignes = [];
+        $total = 0;
+        $atteignable = 0;
+
+        foreach ($criteres as $c) {
+            $source = self::SOURCE_PAR_CRITERE[$c->code] ?? null;
+            $evaluable = in_array($c->code, $disponible, true);
+            $total += $c->poids;
+            if ($evaluable) {
+                $atteignable += $c->poids;
+            }
+
+            $manque = $evaluable ? null
+                : ($source === null
+                    ? 'Aucun calcul ne sait évaluer ce critère : ses points sont inatteignables.'
+                    : "Le référentiel « {$source} » n'a plus aucune valeur active.");
+
+            $lignes[] = [
+                'code' => $c->code, 'libelle' => $c->libelle, 'poids' => $c->poids,
+                'source' => $source, 'evaluable' => $evaluable, 'manque' => $manque,
+            ];
+        }
+
+        return ['total' => $total, 'total_atteignable' => $atteignable, 'criteres' => $lignes];
+    }
+
     /** @return array<string, bool> les huit faits, par code. */
     private function faits(Lead $lead, Carbon $maintenant): array
     {

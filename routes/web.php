@@ -4,6 +4,7 @@ use App\Http\Controllers\ActiviteController;
 use App\Http\Controllers\AlerteController;
 use App\Http\Controllers\CampagneController;
 use App\Http\Controllers\CommentaireController;
+use App\Http\Controllers\CritereScoreController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ImportController;
@@ -79,6 +80,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('import', [ImportController::class, 'index'])->name('import.index');
     Route::post('import/analyser', [ImportController::class, 'analyser'])->name('import.analyser');
     Route::post('import/executer', [ImportController::class, 'executer'])->name('import.executer');
+
+    Route::get('criteres-score', [CritereScoreController::class, 'index'])->name('criteres-score.index');
 
     Route::get('alertes', [AlerteController::class, 'index'])->name('alertes.index');
     Route::put('alertes/{parametre}', [AlerteController::class, 'update'])->name('alertes.update');

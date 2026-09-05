@@ -99,6 +99,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Édition lead §5 (PUT liste blanche, propriétaire exclu, RG-LEA-003, §41, vide→null) | Oui | Oui | OK | Terminé (mutation : RG-LEA-003, exclusion) |
 | Édition qualification §13 (satellite, remplacement, bloc Sage, RG-LEA-003) | Oui | Oui | OK | Terminé (2 mutations : bloc Sage, RG-LEA-003) |
 | Score §15 : suggestion automatique (8 critères pondérés, hors d'atteinte RG-LEA-004) | Oui | Oui | OK | Terminé (2 mutations : RDV effectué, évaluabilité) |
+| Admin critères de score §15/§50 (diagnostic : hors d'atteinte + référentiel à rétablir) | Oui | Oui | OK | Terminé (mutation : évaluabilité) |
 | Référentiels score (CritereScore, TrancheBudget, HorizonDecision, Besoin) | Oui | Oui | OK | Terminé |
 | Sociétés : table + modèle + numérotation SOC + normalisation §41 | Oui | Oui | OK | Terminé |
 | Sociétés : écran liste + périmètre (RG-HAB-001) | Oui | Oui | Navigateur | Terminé |

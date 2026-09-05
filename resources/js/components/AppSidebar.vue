@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { BarChart3, Bell, Building2, BookOpen, FolderGit2, LayoutGrid, ListChecks, Megaphone, Package, ScrollText, ShieldCheck, Target, Upload, Users } from '@lucide/vue';
+import { BarChart3, Bell, Building2, BookOpen, FolderGit2, Gauge, LayoutGrid, ListChecks, Megaphone, Package, ScrollText, ShieldCheck, Target, Upload, Users } from '@lucide/vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -68,6 +68,11 @@ const mainNavItems: NavItem[] = [
         title: 'Import',
         href: '/import',
         icon: Upload,
+    },
+    {
+        title: 'Critères de score',
+        href: '/criteres-score',
+        icon: Gauge,
     },
     {
         title: 'Journal',
