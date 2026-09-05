@@ -62,6 +62,11 @@ class SocieteController extends Controller
             ->where('cible_type', 'Societe')->where('cible_id', $societe->id)->where('actif', true)
             ->with('auteur:id,prenom,nom')->latest()->get();
 
+        // §44 : les documents de la fiche.
+        $documents = \App\Models\Document::query()
+            ->where('cible_type', 'Societe')->where('cible_id', $societe->id)->where('actif', true)
+            ->with('type:id,libelle')->latest('depose_le')->get();
+
         return Inertia::render('Societes/Show', [
             'societe' => [
                 'id' => $societe->id,
@@ -91,6 +96,17 @@ class SocieteController extends Controller
             // §32 : les états atteignables depuis l'état courant (RG-SOC-001).
             'ciblesEtat' => $request->user()->peut('societe.modifier') ? TransitionSociete::cibles($societe->etat) : [],
             'moiId' => $request->user()->id,
+            'peutDeposer' => $request->user()->peut('document.deposer'),
+            'peutSupprimer' => $request->user()->peut('document.supprimer'),
+            'typesDocument' => \App\Models\Referentiels\TypeDocument::query()->where('actif', true)->orderBy('ordre')
+                ->get(['id', 'libelle'])->map(fn ($t) => ['id' => $t->id, 'libelle' => $t->libelle]),
+            'documents' => $documents->map(fn ($d) => [
+                'id' => $d->id,
+                'nom' => $d->nom,
+                'type' => $d->type?->libelle,
+                'taille_octets' => $d->taille_octets,
+                'depose_le' => $d->depose_le?->toIso8601String(),
+            ]),
             'notes' => $notes->map(fn ($n) => [
                 'id' => $n->id,
                 'texte' => $n->texte,

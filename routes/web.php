@@ -4,6 +4,7 @@ use App\Http\Controllers\ActiviteController;
 use App\Http\Controllers\CampagneController;
 use App\Http\Controllers\CommentaireController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\DonneesPersonnellesController;
 use App\Http\Controllers\JournalController;
@@ -40,6 +41,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('opportunites/{opportunite}/lignes', [OpportuniteController::class, 'lignes'])->name('opportunites.lignes');
 
     Route::post('activites', [ActiviteController::class, 'store'])->name('activites.store');
+
+    // Documents §44
+    Route::post('documents', [DocumentController::class, 'store'])->name('documents.store');
+    Route::get('documents/{document}/telecharger', [DocumentController::class, 'download'])->name('documents.download');
+    Route::put('documents/{document}', [DocumentController::class, 'update'])->name('documents.update');
+    Route::delete('documents/{document}', [DocumentController::class, 'destroy'])->name('documents.destroy');
 
     // Notes internes §45 — pas de permission dédiée, gardées par la fiche parente.
     Route::post('commentaires', [CommentaireController::class, 'store'])->name('commentaires.store');

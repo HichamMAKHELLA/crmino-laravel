@@ -2,12 +2,15 @@
 import { Head, router, usePage } from '@inertiajs/vue3';
 import FriseActivites from '@/components/FriseActivites.vue';
 import NotesInternes from '@/components/NotesInternes.vue';
+import Documents from '@/components/Documents.vue';
 import { computed, ref } from 'vue';
 
 interface Note {
     id: number; texte: string; auteur: string | null; auteur_id: number;
     cree_le: string | null; modifie_le: string | null;
 }
+interface Doc { id: number; nom: string; type: string | null; taille_octets: number; depose_le: string | null }
+interface TypeDocOption { id: number; libelle: string }
 
 interface Societe {
     id: number; numero: string; raison_sociale: string; etat: string;
@@ -26,7 +29,11 @@ interface ActiviteLigne {
 }
 interface TypeActiviteOption { id: number; libelle: string }
 
-const props = defineProps<{ societe: Societe; contacts: ContactLigne[]; activites: ActiviteLigne[]; typesActivite: TypeActiviteOption[]; ciblesEtat: string[]; notes: Note[]; moiId: number }>();
+const props = defineProps<{
+    societe: Societe; contacts: ContactLigne[]; activites: ActiviteLigne[]; typesActivite: TypeActiviteOption[];
+    ciblesEtat: string[]; notes: Note[]; moiId: number;
+    documents: Doc[]; typesDocument: TypeDocOption[]; peutDeposer: boolean; peutSupprimer: boolean;
+}>();
 
 const page = usePage();
 const succes = computed(() => (page.props.flash as { success?: string } | undefined)?.success);
@@ -147,6 +154,8 @@ defineOptions({
         </section>
 
         <FriseActivites :cible-type="'societe'" :cible-id="societe.id" :activites="activites" :types="typesActivite" />
+
+        <Documents cible-type="Societe" :cible-id="societe.id" :documents="documents" :types-document="typesDocument" :peut-deposer="peutDeposer" :peut-supprimer="peutSupprimer" />
 
         <NotesInternes cible-type="Societe" :cible-id="societe.id" :moi-id="moiId" :notes="notes" />
     </div>

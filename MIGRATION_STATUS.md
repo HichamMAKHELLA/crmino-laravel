@@ -63,7 +63,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | 3 | Rôles + périmètre (`PerimetreScope`, `RG-HAB-*`) | **Tranche 1 faite** (identité, portée, scope) ; reste permissions + matrice §78 |
 | 4 | Référentiels administrables (§50, `RG-REF-*`) | **Tranches 1-2 faites** (8 auto-contenus + géographique + fonctions) ; reste score, besoins, catalogue, alertes |
 | 5 | Leads + doublons + qualification + score (`RG-LEA-*`, `RG-DOU`, `RG-IND`) | **Tranches 1-2 faites** (table, périmètre prouvé, numérotation, écran Inertia, doublons §41) ; reste édition qualif./score, suggestion de score |
-| 6 | Sociétés + contacts + conversion (`RG-SOC`, §31) | **Tranches 1-5 faites** (table, périmètre, liste, conversion §31 avec bascule **complète** §8 contacts+activités+tâches+documents+commentaires, fiches, état §32 RG-SOC-001) ; reste écrans documents §44 / notes §45, édition |
+| 6 | Sociétés + contacts + conversion (`RG-SOC`, §31) | **Terminée** (table, périmètre, liste, conversion §31 + bascule §8 complète, fiches, état §32, notes §45, documents §44) ; reste édition champs société §18 |
 | 7 | Opportunités + lignes + pipeline (`RG-OPP-001..007`) | **Terminée** (pondéré généré, création, board, fiche, clôture RG-OPP-002/003/005, lignes §28 + RG-OPP-006, glisser-déposer §64 RG-OPP-005) |
 | 8 | Activités, tâches, notifications, campagnes, catalogue | **Terminée** (activités, tâches, notifications, campagnes, catalogue §28 + §47) |
 | 9 | Jobs/planif (`--notifier` → Scheduler/Queue) + Outbox Sage | **Outbox §48 + notifications d'état §36 faites** (Scheduler `crmino:notifier`, idempotent) ; reste purge de rétention |
@@ -108,7 +108,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Tables documents §44 + commentaires §45 (+ types_document socle §15) | Oui | Oui | OK | Terminé |
 | Conversion §31 : bascule documents/commentaires (§8, polymorphe) | Oui | Oui | OK | Terminé (mutation : bascule retirée) |
 | Notes internes §45 (auteur seul, modifie_le, 404 pas 403, texte échappé) | Oui | Oui | OK | Terminé (mutation : garde auteur) |
-| Écrans documents §44 (dépôt/retrait, stockage fichier) | Oui | Non | — | À faire |
+| Documents §44 (dépôt liste blanche, download pièce jointe MIME neutre, retrait §47) | Oui | Oui | OK | Terminé (mutation : liste blanche) |
 | Édition société / champs (§18) | Oui | Non | — | À faire |
 | Opportunités : table + modèle + numérotation OPP | Oui | Oui | OK | Terminé |
 | RG-OPP-001 : montant pondéré (colonne générée) | Oui | Oui | OK | Terminé (mutation schéma) |
