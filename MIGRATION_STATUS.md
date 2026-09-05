@@ -63,7 +63,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | 3 | Rôles + périmètre (`PerimetreScope`, `RG-HAB-*`) | **Tranche 1 faite** (identité, portée, scope) ; reste permissions + matrice §78 |
 | 4 | Référentiels administrables (§50, `RG-REF-*`) | **Tranches 1-2 faites** (8 auto-contenus + géographique + fonctions) ; reste score, besoins, catalogue, alertes |
 | 5 | Leads + doublons + qualification + score (`RG-LEA-*`, `RG-DOU`, `RG-IND`) | **Tranches 1-2 faites** (table, périmètre prouvé, numérotation, écran Inertia, doublons §41) ; reste édition qualif./score, suggestion de score |
-| 6 | Sociétés + contacts + conversion (`RG-SOC`, §31) | **Tranches 1-4 faites** (table, périmètre, liste, conversion §31 avec bascule contacts+activités+**tâches** §8, fiches, état §32 RG-SOC-001) ; reste bascule documents/commentaires (tables non créées), édition |
+| 6 | Sociétés + contacts + conversion (`RG-SOC`, §31) | **Tranches 1-5 faites** (table, périmètre, liste, conversion §31 avec bascule **complète** §8 contacts+activités+tâches+documents+commentaires, fiches, état §32 RG-SOC-001) ; reste écrans documents §44 / notes §45, édition |
 | 7 | Opportunités + lignes + pipeline (`RG-OPP-001..007`) | **Tranches 1-3 faites** (pondéré généré, création, board, fiche, clôture RG-OPP-002/003/005, lignes §28 + RG-OPP-006) ; reste glisser-déposer §64 |
 | 8 | Activités, tâches, notifications, campagnes, catalogue | **Terminée** (activités, tâches, notifications, campagnes, catalogue §28 + §47) |
 | 9 | Jobs/planif (`--notifier` → Scheduler/Queue) + Outbox Sage | À faire |
@@ -82,7 +82,8 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Extinction §68 + dossier §72 | Oui | Oui | OK | Terminé |
 | Référentiels moteur + 8 auto-contenus (sources, statuts, étapes, motifs…) | Oui | Oui | OK | Terminé |
 | Référentiels géographiques (Pays/Région/Ville) + fonctions | Oui | Oui | OK | Terminé |
-| Référentiels score / besoins / catalogue / alertes | Oui | Non | — | À faire |
+| Référentiel types_document (§44, DEVIS/PROPOSITION socle §15) | Oui | Oui | OK | Terminé |
+| Référentiels score / besoins / alertes | Oui | Non | — | À faire |
 | Leads : schéma + modèle + numérotation §10 | Oui | Oui | OK | Terminé |
 | Leads : périmètre par ligne (RG-HAB-001, vrai modèle) | Oui | Oui | OK | Terminé |
 | Leads : écran liste (Inertia + Policy) | Oui | Oui | OK | Terminé |
@@ -104,7 +105,9 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Fiche société (§58) | Oui | Oui | Navigateur | Terminé |
 | État de la relation §32 (RG-SOC-001, trace ChangementStatut) | Oui | Oui | OK | Terminé (mutation : Client→Prospect) |
 | Conversion §31 : bascule des tâches (§8, §20) | Oui | Oui | OK | Terminé (mutation : bascule retirée) |
-| Bascule documents/commentaires (§8) — tables à créer | Oui | Non | — | À faire |
+| Tables documents §44 + commentaires §45 (+ types_document socle §15) | Oui | Oui | OK | Terminé |
+| Conversion §31 : bascule documents/commentaires (§8, polymorphe) | Oui | Oui | OK | Terminé (mutation : bascule retirée) |
+| Écrans documents §44 (dépôt/retrait) + notes internes §45 (auteur seul) | Oui | Non | — | À faire |
 | Édition société / champs (§18) | Oui | Non | — | À faire |
 | Opportunités : table + modèle + numérotation OPP | Oui | Oui | OK | Terminé |
 | RG-OPP-001 : montant pondéré (colonne générée) | Oui | Oui | OK | Terminé (mutation schéma) |

@@ -59,6 +59,21 @@ it('§8 — le décompte de conversion inclut les tâches basculées', function 
     expect($message)->toContain('1 tâche');
 });
 
+it('§8 — documents et commentaires basculent (§44, §45), par changement de cible', function () {
+    \App\Models\Document::factory()->count(2)->create(['cible_type' => 'Lead', 'cible_id' => $this->lead->id, 'depose_par' => $this->commercial->id]);
+    \App\Models\Commentaire::factory()->create(['cible_type' => 'Lead', 'cible_id' => $this->lead->id, 'auteur_id' => $this->commercial->id]);
+
+    $this->actingAs($this->commercial)->post("/leads/{$this->lead->id}/convertir");
+    $societe = Societe::first();
+
+    // Cible déplacée du lead vers la société (pas recopiée).
+    expect(\App\Models\Document::where('cible_type', 'Societe')->where('cible_id', $societe->id)->count())->toBe(2);
+    expect(\App\Models\Document::where('cible_type', 'Lead')->where('cible_id', $this->lead->id)->count())->toBe(0);
+    expect(\App\Models\Commentaire::where('cible_type', 'Societe')->where('cible_id', $societe->id)->count())->toBe(1);
+
+    expect(session('success'))->toContain('2 documents')->toContain('1 note');
+});
+
 it('marque le lead converti (§31, RG-LEA-003)', function () {
     $this->actingAs($this->commercial)->post("/leads/{$this->lead->id}/convertir");
 

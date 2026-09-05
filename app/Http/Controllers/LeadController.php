@@ -158,13 +158,16 @@ class LeadController extends Controller
 
         // Le décompte annonce que l'historique a SUIVI : oublier une famille
         // ferait croire à une perte, sur un geste que le §31 rend irréversible.
-        $n = $resultat['contacts'] + $resultat['activites'] + $resultat['taches'];
+        $n = $resultat['contacts'] + $resultat['activites'] + $resultat['taches']
+            + $resultat['documents'] + $resultat['commentaires'];
 
         return to_route('societes.show', $resultat['societe']->id)
             ->with('success', "Lead converti — société {$resultat['societe']->numero} créée. "
                 ."{$resultat['contacts']} contact".($resultat['contacts'] > 1 ? 's' : '')
                 .", {$resultat['activites']} activité".($resultat['activites'] > 1 ? 's' : '')
                 .", {$resultat['taches']} tâche".($resultat['taches'] > 1 ? 's' : '')
+                .", {$resultat['documents']} document".($resultat['documents'] > 1 ? 's' : '')
+                .", {$resultat['commentaires']} note".($resultat['commentaires'] > 1 ? 's' : '')
                 .' basculé'.($n > 1 ? 's' : '').'.');
     }
 

@@ -95,6 +95,17 @@ class ReferentielsSeeder extends Seeder
             ['AUTRE', 'Autre', 'Autre', 999, true],
         ]);
 
+        // types_document : [code, libellé, ordre, systeme]
+        // §15 : DEVIS et PROPOSITION nourrissent le score -> systeme = 1.
+        $this->upsert('types_document', ['code', 'libelle', 'ordre', 'systeme'], [
+            ['DEVIS', 'Devis', 10, true],
+            ['PROPOSITION', 'Proposition commerciale', 20, true],
+            ['BON_COMMANDE', 'Bon de commande', 30, false],
+            ['CONTRAT', 'Contrat', 40, false],
+            ['CAHIER_CHARGES', 'Cahier des charges', 50, false],
+            ['AUTRE', 'Autre', 999, true],
+        ]);
+
         // statuts_lead : [code, libellé, categorie, ordre, systeme]
         $this->upsert('statuts_lead', ['code', 'libelle', 'categorie', 'ordre', 'systeme'], [
             ['NOUVEAU', 'Nouveau', 'Ouvert', 10, true],

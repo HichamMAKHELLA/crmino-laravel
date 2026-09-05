@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Support;
 
 use App\Models\Activite;
+use App\Models\Commentaire;
 use App\Models\Contact;
+use App\Models\Document;
 use App\Models\Lead;
 use App\Models\Referentiels\StatutLead;
 use App\Models\Societe;
@@ -18,13 +20,14 @@ use Illuminate\Support\Facades\DB;
  *
  * La bascule DÉPLACE, elle ne recopie pas : c'est tout l'intérêt du rattachement
  * polymorphe. Deux tables, une seule relation commerciale ; recopier ferait
- * exister l'historique deux fois. Contacts, activités et TÂCHES basculent ici —
- * documents et commentaires suivront avec leurs tables (§8).
+ * exister l'historique deux fois. Contacts, activités, tâches, documents et
+ * commentaires basculent tous ici (§8) : la frise et l'historique de la société
+ * commenceraient sinon au jour de la conversion.
  */
 final class ConversionLead
 {
     /**
-     * @return array{societe: Societe, contacts: int, activites: int, taches: int}
+     * @return array{societe: Societe, contacts: int, activites: int, taches: int, documents: int, commentaires: int}
      */
     public function convertir(Lead $lead, ?int $societeExistanteId, User $auteur): array
     {
@@ -49,6 +52,17 @@ final class ConversionLead
             $taches = Tache::query()->where('lead_id', $lead->id)
                 ->update(['societe_id' => $societe->id, 'lead_id' => null]);
 
+            // Documents (§44) et commentaires (§45) : rattachement POLYMORPHE.
+            // La bascule change la cible du lead vers la société — le devis
+            // déposé avant la conversion paraîtrait sinon perdu, et les notes de
+            // prospection seraient coupées de la fiche vivante.
+            $documents = Document::query()
+                ->where('cible_type', 'Lead')->where('cible_id', $lead->id)
+                ->update(['cible_type' => 'Societe', 'cible_id' => $societe->id]);
+            $commentaires = Commentaire::query()
+                ->where('cible_type', 'Lead')->where('cible_id', $lead->id)
+                ->update(['cible_type' => 'Societe', 'cible_id' => $societe->id]);
+
             // ── Le lead porte désormais sa marque de conversion (§31). ──
             $statutConverti = StatutLead::query()->where('categorie', 'Converti')
                 ->orderBy('ordre')->value('id') ?? $lead->statut_id;
@@ -61,7 +75,8 @@ final class ConversionLead
                 'modifie_par' => $auteur->id,
             ])->save();
 
-            return ['societe' => $societe, 'contacts' => $contacts, 'activites' => $activites, 'taches' => $taches];
+            return ['societe' => $societe, 'contacts' => $contacts, 'activites' => $activites,
+                'taches' => $taches, 'documents' => $documents, 'commentaires' => $commentaires];
         });
     }
 
