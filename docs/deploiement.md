@@ -104,7 +104,21 @@ php artisan crmino:notifier
 - Lancer un import CSV de deux lignes ; vérifier l'aperçu puis l'import.
 - Confirmer que `storage/logs` n'est pas accessible par le web.
 
-## 10. Sauvegarde
+## 10. Purge de rétention (§72)
+
+Les durées de conservation sont dans `config/crmino.php` (audit 5 ans,
+notifications lues 90 jours) — **contractuelles**, à confirmer côté CNDP, jamais
+codées en dur. La commande est en **simulation par défaut** :
+
+```bash
+php artisan crmino:purger              # simulation : compte, ne supprime rien
+php artisan crmino:purger --executer   # applique (par lots)
+```
+
+À planifier **après** avoir confirmé qu'une sauvegarde récente existe. Cron
+mensuel possible (avec `--executer`), ou exécution manuelle supervisée.
+
+## 11. Sauvegarde
 
 - Base MariaDB : sauvegarde cPanel quotidienne (ou `mysqldump`).
 - `storage/app/private/documents` : les pièces jointes ne sont PAS en base —
