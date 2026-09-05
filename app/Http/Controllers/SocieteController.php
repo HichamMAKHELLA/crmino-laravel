@@ -57,6 +57,11 @@ class SocieteController extends Controller
             'activites' => fn ($q) => $q->where('actif', true)->orderByDesc('debut_le')->with(['type:id,libelle', 'utilisateur:id,prenom,nom']),
         ]);
 
+        // §45 : les notes internes de la fiche (les plus récentes d'abord).
+        $notes = \App\Models\Commentaire::query()
+            ->where('cible_type', 'Societe')->where('cible_id', $societe->id)->where('actif', true)
+            ->with('auteur:id,prenom,nom')->latest()->get();
+
         return Inertia::render('Societes/Show', [
             'societe' => [
                 'id' => $societe->id,
@@ -85,6 +90,15 @@ class SocieteController extends Controller
             'typesActivite' => TypeActivite::query()->where('actif', true)->orderBy('ordre')->get(['id', 'libelle'])->map(fn ($t) => ['id' => $t->id, 'libelle' => $t->libelle]),
             // §32 : les états atteignables depuis l'état courant (RG-SOC-001).
             'ciblesEtat' => $request->user()->peut('societe.modifier') ? TransitionSociete::cibles($societe->etat) : [],
+            'moiId' => $request->user()->id,
+            'notes' => $notes->map(fn ($n) => [
+                'id' => $n->id,
+                'texte' => $n->texte,
+                'auteur' => $n->auteur ? trim(($n->auteur->prenom ?? '').' '.($n->auteur->nom ?? '')) : null,
+                'auteur_id' => $n->auteur_id,
+                'cree_le' => $n->created_at?->toIso8601String(),
+                'modifie_le' => $n->modifie_le?->toIso8601String(),
+            ]),
             'contacts' => $societe->contacts->map(fn ($c) => [
                 'id' => $c->id,
                 'nom' => trim(($c->prenom ?? '').' '.$c->nom),

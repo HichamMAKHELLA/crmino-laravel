@@ -107,7 +107,8 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Conversion §31 : bascule des tâches (§8, §20) | Oui | Oui | OK | Terminé (mutation : bascule retirée) |
 | Tables documents §44 + commentaires §45 (+ types_document socle §15) | Oui | Oui | OK | Terminé |
 | Conversion §31 : bascule documents/commentaires (§8, polymorphe) | Oui | Oui | OK | Terminé (mutation : bascule retirée) |
-| Écrans documents §44 (dépôt/retrait) + notes internes §45 (auteur seul) | Oui | Non | — | À faire |
+| Notes internes §45 (auteur seul, modifie_le, 404 pas 403, texte échappé) | Oui | Oui | OK | Terminé (mutation : garde auteur) |
+| Écrans documents §44 (dépôt/retrait, stockage fichier) | Oui | Non | — | À faire |
 | Édition société / champs (§18) | Oui | Non | — | À faire |
 | Opportunités : table + modèle + numérotation OPP | Oui | Oui | OK | Terminé |
 | RG-OPP-001 : montant pondéré (colonne générée) | Oui | Oui | OK | Terminé (mutation schéma) |

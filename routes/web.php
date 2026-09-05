@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ActiviteController;
 use App\Http\Controllers\CampagneController;
+use App\Http\Controllers\CommentaireController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DonneesPersonnellesController;
 use App\Http\Controllers\JournalController;
@@ -37,6 +38,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('opportunites/{opportunite}/lignes', [OpportuniteController::class, 'lignes'])->name('opportunites.lignes');
 
     Route::post('activites', [ActiviteController::class, 'store'])->name('activites.store');
+
+    // Notes internes §45 — pas de permission dédiée, gardées par la fiche parente.
+    Route::post('commentaires', [CommentaireController::class, 'store'])->name('commentaires.store');
+    Route::put('commentaires/{commentaire}', [CommentaireController::class, 'update'])->name('commentaires.update');
+    Route::delete('commentaires/{commentaire}', [CommentaireController::class, 'destroy'])->name('commentaires.destroy');
 
     Route::get('taches', [TacheController::class, 'index'])->name('taches.index');
     Route::post('taches', [TacheController::class, 'store'])->name('taches.store');
