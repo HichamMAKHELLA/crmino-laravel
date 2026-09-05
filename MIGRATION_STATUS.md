@@ -97,7 +97,8 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Qualification §13 (satellite 1-1) — lecture | Oui | Oui | OK | Terminé |
 | Fiche 360° du lead (§58, palier, contacts, qualif) | Oui | Oui | Navigateur | Terminé |
 | Édition lead §5 (PUT liste blanche, propriétaire exclu, RG-LEA-003, §41, vide→null) | Oui | Oui | OK | Terminé (mutation : RG-LEA-003, exclusion) |
-| Édition qualification §13 + score §15 (écriture, suggestion) | Oui | Non | — | À faire |
+| Édition qualification §13 (satellite, remplacement, bloc Sage, RG-LEA-003) | Oui | Oui | OK | Terminé (2 mutations : bloc Sage, RG-LEA-003) |
+| Score §15 : suggestion automatique (CritereScore + référentiels) | Oui | Non | — | À faire (référentiels absents) |
 | Sociétés : table + modèle + numérotation SOC + normalisation §41 | Oui | Oui | OK | Terminé |
 | Sociétés : écran liste + périmètre (RG-HAB-001) | Oui | Oui | Navigateur | Terminé |
 | Conversion §31 (lead -> société, bascule des contacts) | Oui | Oui | Navigateur | Terminé (autres familles -> §8) |

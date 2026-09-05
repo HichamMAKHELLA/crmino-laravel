@@ -33,6 +33,13 @@ interface Edition {
     ca_estime: number | null; adresse: string | null; commentaire: string | null;
 }
 interface RefOption { id: number; libelle: string }
+interface Qualif {
+    nb_sites: number | null; nb_agences: number | null; logiciel_actuel: string | null;
+    erp_actuel: string | null; version_actuelle: string | null; nb_utilisateurs: number | null;
+    hebergement: string | null; prestataire_actuel: string | null; usage_sage: string;
+    version_sage: string | null; nb_utilisateurs_sage: number | null; revendeur_actuel: string | null;
+    contrat_sage: boolean | null;
+}
 
 const props = defineProps<{
     lead: Lead;
@@ -44,6 +51,7 @@ const props = defineProps<{
     peutConvertir: boolean;
     peutModifier: boolean;
     edition: Edition;
+    qualif: Qualif;
     sources: RefOption[];
     statuts: RefOption[];
     activites: ActiviteLigne[];
@@ -58,6 +66,14 @@ const enEdition = ref(false);
 const edit = useForm({ ...props.edition });
 function enregistrerChamps() {
     edit.put(`/leads/${props.lead.id}`, { preserveScroll: true, onSuccess: () => { enEdition.value = false; } });
+}
+
+// §13 : qualification. Le bloc Sage n'apparaît que pour un utilisateur (actuel ou ancien).
+const enQualif = ref(false);
+const qual = useForm({ ...props.qualif });
+const montreSage = computed(() => qual.usage_sage === 'Oui' || qual.usage_sage === 'Ancien');
+function enregistrerQualif() {
+    qual.put(`/leads/${props.lead.id}/qualification`, { preserveScroll: true, onSuccess: () => { enQualif.value = false; } });
 }
 
 function convertir() {
@@ -215,8 +231,46 @@ defineOptions({
 
         <!-- Qualification §13 -->
         <section class="flex flex-col gap-2">
-            <h2 class="text-sm font-semibold text-muted-foreground">Qualification (§13)</h2>
-            <div v-if="qualification" class="grid gap-4 rounded-xl border border-sidebar-border/70 p-4 sm:grid-cols-2 dark:border-sidebar-border">
+            <div class="flex items-center justify-between">
+                <h2 class="text-sm font-semibold text-muted-foreground">Qualification (§13)</h2>
+                <button
+                    v-if="peutModifier"
+                    type="button"
+                    class="rounded-md border border-sidebar-border/70 px-3 py-1 text-xs hover:bg-muted dark:border-sidebar-border"
+                    @click="enQualif = !enQualif"
+                >
+                    {{ enQualif ? 'Fermer' : 'Qualifier' }}
+                </button>
+            </div>
+
+            <!-- §13 : formulaire de qualification. Le bloc Sage suit usage_sage. -->
+            <form v-if="enQualif && peutModifier" class="grid gap-3 rounded-xl border border-sidebar-border/70 p-4 sm:grid-cols-2 dark:border-sidebar-border" @submit.prevent="enregistrerQualif">
+                <label class="flex flex-col gap-1 text-sm"><span class="text-xs text-muted-foreground">Usage de Sage</span>
+                    <select v-model="qual.usage_sage" class="rounded-md border bg-background px-3 py-1.5">
+                        <option value="Oui">Oui</option>
+                        <option value="Ancien">Ancien utilisateur</option>
+                        <option value="Non">Non</option>
+                        <option value="NeSaitPas">Ne sait pas</option>
+                    </select>
+                </label>
+                <label class="flex flex-col gap-1 text-sm"><span class="text-xs text-muted-foreground">Logiciel / ERP actuel</span><input v-model="qual.logiciel_actuel" type="text" class="rounded-md border bg-background px-3 py-1.5" /></label>
+                <label class="flex flex-col gap-1 text-sm"><span class="text-xs text-muted-foreground">Utilisateurs</span><input v-model.number="qual.nb_utilisateurs" type="number" min="0" class="rounded-md border bg-background px-3 py-1.5" /></label>
+                <label class="flex flex-col gap-1 text-sm"><span class="text-xs text-muted-foreground">Hébergement</span><input v-model="qual.hebergement" type="text" class="rounded-md border bg-background px-3 py-1.5" /></label>
+
+                <!-- Bloc Sage : seulement pour un utilisateur actuel ou ancien. -->
+                <template v-if="montreSage">
+                    <label class="flex flex-col gap-1 text-sm"><span class="text-xs text-muted-foreground">Version Sage</span><input v-model="qual.version_sage" type="text" class="rounded-md border bg-background px-3 py-1.5" /></label>
+                    <label class="flex flex-col gap-1 text-sm"><span class="text-xs text-muted-foreground">Revendeur actuel</span><input v-model="qual.revendeur_actuel" type="text" class="rounded-md border bg-background px-3 py-1.5" /></label>
+                    <label class="flex flex-col gap-1 text-sm"><span class="text-xs text-muted-foreground">Utilisateurs Sage</span><input v-model.number="qual.nb_utilisateurs_sage" type="number" min="0" class="rounded-md border bg-background px-3 py-1.5" /></label>
+                    <label class="flex items-center gap-2 text-sm"><input v-model="qual.contrat_sage" type="checkbox" /> <span>Contrat Sage en cours</span></label>
+                </template>
+
+                <div class="sm:col-span-2">
+                    <button type="submit" class="rounded-md bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90" :disabled="qual.processing">Enregistrer</button>
+                </div>
+            </form>
+
+            <div v-else-if="qualification" class="grid gap-4 rounded-xl border border-sidebar-border/70 p-4 sm:grid-cols-2 dark:border-sidebar-border">
                 <div>
                     <p class="text-xs text-muted-foreground">Usage de Sage</p>
                     <p class="text-sm">{{ usageSage[qualification.usage_sage] ?? qualification.usage_sage }}</p>

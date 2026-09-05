@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreLeadRequest;
 use App\Models\Lead;
+use App\Models\QualificationLead;
 use App\Models\Referentiels\TypeActivite;
 use App\Models\Referentiels\PalierScore;
 use App\Models\Referentiels\Source;
@@ -101,6 +102,22 @@ class LeadController extends Controller
                 ->map(fn ($s) => ['id' => $s->id, 'libelle' => $s->libelle]),
             'statuts' => StatutLead::query()->where('actif', true)->orderBy('ordre')->get(['id', 'libelle'])
                 ->map(fn ($s) => ['id' => $s->id, 'libelle' => $s->libelle]),
+            // §13 : la qualification, sous forme éditable (les champs, ou des nuls).
+            'qualif' => [
+                'nb_sites' => $lead->qualification?->nb_sites,
+                'nb_agences' => $lead->qualification?->nb_agences,
+                'logiciel_actuel' => $lead->qualification?->logiciel_actuel,
+                'erp_actuel' => $lead->qualification?->erp_actuel,
+                'version_actuelle' => $lead->qualification?->version_actuelle,
+                'nb_utilisateurs' => $lead->qualification?->nb_utilisateurs,
+                'hebergement' => $lead->qualification?->hebergement,
+                'prestataire_actuel' => $lead->qualification?->prestataire_actuel,
+                'usage_sage' => $lead->qualification?->usage_sage ?? 'NeSaitPas',
+                'version_sage' => $lead->qualification?->version_sage,
+                'nb_utilisateurs_sage' => $lead->qualification?->nb_utilisateurs_sage,
+                'revendeur_actuel' => $lead->qualification?->revendeur_actuel,
+                'contrat_sage' => $lead->qualification?->contrat_sage,
+            ],
             'lead' => [
                 'id' => $lead->id,
                 'numero' => $lead->numero,
@@ -215,6 +232,59 @@ class LeadController extends Controller
             ->mapWithKeys(fn ($v, $k) => [$k => [$avant[$k] ?? null, $v]])->all());
 
         return back()->with('success', 'Lead modifié.');
+    }
+
+    /**
+     * §13 : enregistre la QUALIFICATION du lead (satellite 1-1, écrit par
+     * REMPLACEMENT). Gardé par lead.modifier + périmètre. RG-LEA-003 : un lead
+     * converti ne se qualifie plus. « Ancien utilisateur » ouvre le bloc Sage
+     * autant que « Oui » ; hors de ces deux cas, les champs Sage repartent à NUL
+     * — les laisser ferait mentir la fiche sur un parc qui n'existe pas.
+     */
+    public function qualifier(Request $request, Lead $lead): RedirectResponse
+    {
+        abort_unless($request->user()->peut('lead.modifier'), 403);
+        abort_unless(
+            Lead::query()->whereKey($lead->id)
+                ->dansPerimetre($request->user(), 'lead.modifier')->exists(),
+            404,
+        );
+
+        if ($lead->societe_id !== null) {
+            return back()->with('error', 'RG-LEA-003 : ce lead est converti. Modifiez la société.');
+        }
+
+        $data = $request->validate([
+            'nb_sites' => ['nullable', 'integer', 'min:0'],
+            'nb_agences' => ['nullable', 'integer', 'min:0'],
+            'logiciel_actuel' => ['nullable', 'string', 'max:150'],
+            'erp_actuel' => ['nullable', 'string', 'max:150'],
+            'version_actuelle' => ['nullable', 'string', 'max:50'],
+            'nb_utilisateurs' => ['nullable', 'integer', 'min:0'],
+            'hebergement' => ['nullable', 'string', 'max:20'],
+            'base_donnees' => ['nullable', 'string', 'max:80'],
+            'prestataire_actuel' => ['nullable', 'string', 'max:150'],
+            'usage_sage' => ['required', 'string', 'in:Oui,Non,Ancien,NeSaitPas'],
+            'version_sage' => ['nullable', 'string', 'max:50'],
+            'nb_utilisateurs_sage' => ['nullable', 'integer', 'min:0'],
+            'revendeur_actuel' => ['nullable', 'string', 'max:150'],
+            'contrat_sage' => ['nullable', 'boolean'],
+            'date_renouvellement_sage' => ['nullable', 'date'],
+        ]);
+
+        // Le bloc Sage n'a de sens que pour un utilisateur (actuel ou ancien).
+        if (! in_array($data['usage_sage'], ['Oui', 'Ancien'], true)) {
+            foreach (['version_sage', 'nb_utilisateurs_sage', 'revendeur_actuel', 'contrat_sage', 'date_renouvellement_sage'] as $champSage) {
+                $data[$champSage] = null;
+            }
+        }
+
+        QualificationLead::query()->updateOrCreate(
+            ['lead_id' => $lead->id],
+            array_merge($data, ['modifie_le' => now(), 'modifie_par' => $request->user()->id]),
+        );
+
+        return back()->with('success', 'Qualification enregistrée.');
     }
 
     public function convertir(Request $request, Lead $lead, ConversionLead $conversion): RedirectResponse

@@ -26,6 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('leads/create', [LeadController::class, 'create'])->name('leads.create');
     Route::get('leads/{lead}', [LeadController::class, 'show'])->name('leads.show');
     Route::put('leads/{lead}', [LeadController::class, 'update'])->name('leads.update');
+    Route::put('leads/{lead}/qualification', [LeadController::class, 'qualifier'])->name('leads.qualifier');
     Route::post('leads/{lead}/convertir', [LeadController::class, 'convertir'])->name('leads.convertir');
 
     Route::get('societes', [SocieteController::class, 'index'])->name('societes.index');
