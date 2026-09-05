@@ -116,6 +116,10 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Campagnes §12 : liste, fiche ROI (RG-IND-002), création | Oui | Oui | OK | Terminé |
 | Catalogue §28 (Famille/Gamme/Produit, retrait, réactivation §47) | Oui | Oui | OK | Terminé |
 | Audit §46 : journal ajout-seul, tracerChamps, écran de lecture | Oui | Oui | OK | Terminé (socle ; producteurs à étendre) |
+| Accueil commercial §77 (tuiles) | Oui | Oui | OK | Terminé |
+| Rapports §75 (prévisionnel), §38 (motifs de perte), §39 (entonnoir) | Oui | Oui | OK | Terminé (entonnoir prouvé par mutation) |
+| Droit d'accès §72 (dossier, trace Export, portée Toutes) | Oui | Oui | OK | Terminé |
+| Rapports §76 (ventilation par produit), import Excel §42 | Oui | Non | — | À faire |
 | Authentification | Oui | (kit) | — | À reprendre en Phase 2 |
 
 ## Problèmes / à confirmer
