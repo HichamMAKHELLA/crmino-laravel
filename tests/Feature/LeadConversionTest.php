@@ -35,6 +35,30 @@ it('crée une société héritée et bascule les contacts (§31)', function () {
     expect(Contact::where('lead_id', $this->lead->id)->count())->toBe(0);
 });
 
+it('§8 — les activités et les tâches basculent aussi (§73, §20)', function () {
+    \App\Models\Activite::factory()->count(2)->create(['lead_id' => $this->lead->id, 'utilisateur_id' => $this->commercial->id]);
+    \App\Models\Tache::factory()->count(3)->create(['lead_id' => $this->lead->id, 'assignee_id' => $this->commercial->id]);
+
+    $this->actingAs($this->commercial)->post("/leads/{$this->lead->id}/convertir");
+    $societe = Societe::first();
+
+    // Déplacées, pas recopiées : lead_id coupé, societe_id posé.
+    expect(\App\Models\Activite::where('societe_id', $societe->id)->count())->toBe(2);
+    expect(\App\Models\Activite::where('lead_id', $this->lead->id)->count())->toBe(0);
+    expect(\App\Models\Tache::where('societe_id', $societe->id)->count())->toBe(3);
+    expect(\App\Models\Tache::where('lead_id', $this->lead->id)->count())->toBe(0);
+});
+
+it('§8 — le décompte de conversion inclut les tâches basculées', function () {
+    \App\Models\Tache::factory()->create(['lead_id' => $this->lead->id, 'assignee_id' => $this->commercial->id]);
+
+    $this->actingAs($this->commercial)->post("/leads/{$this->lead->id}/convertir");
+
+    // 2 contacts + 0 activité + 1 tâche : le message doit nommer la tâche.
+    $message = session('success');
+    expect($message)->toContain('1 tâche');
+});
+
 it('marque le lead converti (§31, RG-LEA-003)', function () {
     $this->actingAs($this->commercial)->post("/leads/{$this->lead->id}/convertir");
 

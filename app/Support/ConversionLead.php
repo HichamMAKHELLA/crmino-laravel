@@ -9,6 +9,7 @@ use App\Models\Contact;
 use App\Models\Lead;
 use App\Models\Referentiels\StatutLead;
 use App\Models\Societe;
+use App\Models\Tache;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -17,13 +18,13 @@ use Illuminate\Support\Facades\DB;
  *
  * La bascule DÉPLACE, elle ne recopie pas : c'est tout l'intérêt du rattachement
  * polymorphe. Deux tables, une seule relation commerciale ; recopier ferait
- * exister l'historique deux fois. Seuls les CONTACTS basculent ici — activités,
- * tâches, documents et commentaires suivront avec leurs tables (§8).
+ * exister l'historique deux fois. Contacts, activités et TÂCHES basculent ici —
+ * documents et commentaires suivront avec leurs tables (§8).
  */
 final class ConversionLead
 {
     /**
-     * @return array{societe: Societe, contacts: int, activites: int}
+     * @return array{societe: Societe, contacts: int, activites: int, taches: int}
      */
     public function convertir(Lead $lead, ?int $societeExistanteId, User $auteur): array
     {
@@ -41,6 +42,13 @@ final class ConversionLead
             $activites = Activite::query()->where('lead_id', $lead->id)
                 ->update(['societe_id' => $societe->id, 'lead_id' => null]);
 
+            // Les tâches suivent aussi (§8, §20) : les rappels EN COURS quitteraient
+            // sinon la fiche vivante. societe_id ET lead_id changent EN MÊME temps —
+            // le CHECK ck_tache_rattachement refuse les deux à la fois, ce qui
+            // protège la bascule d'être écrite à moitié.
+            $taches = Tache::query()->where('lead_id', $lead->id)
+                ->update(['societe_id' => $societe->id, 'lead_id' => null]);
+
             // ── Le lead porte désormais sa marque de conversion (§31). ──
             $statutConverti = StatutLead::query()->where('categorie', 'Converti')
                 ->orderBy('ordre')->value('id') ?? $lead->statut_id;
@@ -53,7 +61,7 @@ final class ConversionLead
                 'modifie_par' => $auteur->id,
             ])->save();
 
-            return ['societe' => $societe, 'contacts' => $contacts, 'activites' => $activites];
+            return ['societe' => $societe, 'contacts' => $contacts, 'activites' => $activites, 'taches' => $taches];
         });
     }
 
