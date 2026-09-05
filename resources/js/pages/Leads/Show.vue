@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import FriseActivites from '@/components/FriseActivites.vue';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 interface Lead {
     id: number; numero: string; raison_sociale: string | null;
@@ -27,6 +27,13 @@ interface ActiviteLigne {
 }
 interface TypeActiviteOption { id: number; libelle: string }
 
+interface Edition {
+    raison_sociale: string | null; ice: string | null; site_web: string | null; score: number | null;
+    source_id: number | null; statut_id: number | null; effectif: number | null;
+    ca_estime: number | null; adresse: string | null; commentaire: string | null;
+}
+interface RefOption { id: number; libelle: string }
+
 const props = defineProps<{
     lead: Lead;
     palier: Palier | null;
@@ -35,12 +42,23 @@ const props = defineProps<{
     converti: boolean;
     societeId: number | null;
     peutConvertir: boolean;
+    peutModifier: boolean;
+    edition: Edition;
+    sources: RefOption[];
+    statuts: RefOption[];
     activites: ActiviteLigne[];
     typesActivite: TypeActiviteOption[];
 }>();
 
 const page = usePage();
 const erreur = computed(() => (page.props.flash as { error?: string } | undefined)?.error);
+
+// §5 : édition. Le formulaire repart des valeurs en cours (le propriétaire est exclu).
+const enEdition = ref(false);
+const edit = useForm({ ...props.edition });
+function enregistrerChamps() {
+    edit.put(`/leads/${props.lead.id}`, { preserveScroll: true, onSuccess: () => { enEdition.value = false; } });
+}
 
 function convertir() {
     if (confirm('Convertir ce lead en société ? Les contacts basculeront vers la société.')) {
@@ -111,15 +129,50 @@ defineOptions({
             </div>
         </div>
 
-        <div v-if="!converti && peutConvertir">
+        <div class="flex flex-wrap gap-2">
             <button
+                v-if="!converti && peutConvertir"
                 type="button"
                 class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
                 @click="convertir"
             >
                 Convertir en société
             </button>
+            <button
+                v-if="peutModifier"
+                type="button"
+                class="rounded-md border border-sidebar-border/70 px-4 py-2 text-sm hover:bg-muted dark:border-sidebar-border"
+                @click="enEdition = !enEdition"
+            >
+                {{ enEdition ? 'Fermer' : 'Modifier' }}
+            </button>
         </div>
+
+        <!-- §5 : édition (le propriétaire est EXCLU ; un lead converti ne se modifie plus). -->
+        <form v-if="enEdition && peutModifier" class="grid gap-3 rounded-xl border border-sidebar-border/70 p-4 sm:grid-cols-2 dark:border-sidebar-border" @submit.prevent="enregistrerChamps">
+            <label class="flex flex-col gap-1 text-sm sm:col-span-2"><span class="text-xs text-muted-foreground">Raison sociale</span><input v-model="edit.raison_sociale" type="text" class="rounded-md border bg-background px-3 py-1.5" /></label>
+            <label class="flex flex-col gap-1 text-sm"><span class="text-xs text-muted-foreground">Origine</span>
+                <select v-model="edit.source_id" class="rounded-md border bg-background px-3 py-1.5">
+                    <option v-for="s in sources" :key="s.id" :value="s.id">{{ s.libelle }}</option>
+                </select>
+            </label>
+            <label class="flex flex-col gap-1 text-sm"><span class="text-xs text-muted-foreground">Statut</span>
+                <select v-model="edit.statut_id" class="rounded-md border bg-background px-3 py-1.5">
+                    <option :value="null">—</option>
+                    <option v-for="s in statuts" :key="s.id" :value="s.id">{{ s.libelle }}</option>
+                </select>
+            </label>
+            <label class="flex flex-col gap-1 text-sm"><span class="text-xs text-muted-foreground">ICE</span><input v-model="edit.ice" type="text" class="rounded-md border bg-background px-3 py-1.5" /></label>
+            <label class="flex flex-col gap-1 text-sm"><span class="text-xs text-muted-foreground">Score (0–100, vide = non scoré)</span><input v-model.number="edit.score" type="number" min="0" max="100" class="rounded-md border bg-background px-3 py-1.5" /></label>
+            <label class="flex flex-col gap-1 text-sm"><span class="text-xs text-muted-foreground">Effectif</span><input v-model.number="edit.effectif" type="number" min="0" class="rounded-md border bg-background px-3 py-1.5" /></label>
+            <label class="flex flex-col gap-1 text-sm"><span class="text-xs text-muted-foreground">CA estimé</span><input v-model.number="edit.ca_estime" type="number" min="0" class="rounded-md border bg-background px-3 py-1.5" /></label>
+            <label class="flex flex-col gap-1 text-sm sm:col-span-2"><span class="text-xs text-muted-foreground">Site web</span><input v-model="edit.site_web" type="text" class="rounded-md border bg-background px-3 py-1.5" /></label>
+            <label class="flex flex-col gap-1 text-sm sm:col-span-2"><span class="text-xs text-muted-foreground">Adresse</span><input v-model="edit.adresse" type="text" class="rounded-md border bg-background px-3 py-1.5" /></label>
+            <label class="flex flex-col gap-1 text-sm sm:col-span-2"><span class="text-xs text-muted-foreground">Commentaire</span><textarea v-model="edit.commentaire" rows="2" class="rounded-md border bg-background px-3 py-1.5"></textarea></label>
+            <div class="sm:col-span-2">
+                <button type="submit" class="rounded-md bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90" :disabled="edit.processing">Enregistrer</button>
+            </div>
+        </form>
 
         <!-- Résumé -->
         <div class="grid gap-4 rounded-xl border border-sidebar-border/70 p-4 sm:grid-cols-3 dark:border-sidebar-border">

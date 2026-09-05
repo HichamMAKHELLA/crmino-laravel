@@ -96,8 +96,8 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Paliers de score §15 (Froid/Tiède/Chaud/Très chaud, bornes) | Oui | Oui | OK | Terminé |
 | Qualification §13 (satellite 1-1) — lecture | Oui | Oui | OK | Terminé |
 | Fiche 360° du lead (§58, palier, contacts, qualif) | Oui | Oui | Navigateur | Terminé |
+| Édition lead §5 (PUT liste blanche, propriétaire exclu, RG-LEA-003, §41, vide→null) | Oui | Oui | OK | Terminé (mutation : RG-LEA-003, exclusion) |
 | Édition qualification §13 + score §15 (écriture, suggestion) | Oui | Non | — | À faire |
-| Leads : qualification §13 / score §15 | Oui | Non | — | À faire |
 | Sociétés : table + modèle + numérotation SOC + normalisation §41 | Oui | Oui | OK | Terminé |
 | Sociétés : écran liste + périmètre (RG-HAB-001) | Oui | Oui | Navigateur | Terminé |
 | Conversion §31 (lead -> société, bascule des contacts) | Oui | Oui | Navigateur | Terminé (autres familles -> §8) |
