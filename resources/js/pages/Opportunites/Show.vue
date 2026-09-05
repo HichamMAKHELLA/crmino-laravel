@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 interface Opportunite {
     id: number; numero: string; intitule: string; statut: string;
@@ -9,11 +9,16 @@ interface Opportunite {
 }
 interface SocieteLien { id: number | null; numero: string | null; raison_sociale: string | null; etat: string | null }
 interface Motif { id: number; libelle: string; commentaire_obligatoire: boolean }
+interface Ligne { id?: number; produit_id: number | null; designation: string; quantite: number; unite: string | null; prix_unitaire: number; montant_ht?: number }
+interface ProduitCat { id: number; designation: string; prix_catalogue: number | null; unite: string | null }
 
 const props = defineProps<{
     opportunite: Opportunite;
     societe: SocieteLien;
     peutCloturer: boolean;
+    peutModifier: boolean;
+    lignes: (Ligne & { produit: string | null })[];
+    catalogue: ProduitCat[];
     motifs: Motif[];
 }>();
 
@@ -41,6 +46,38 @@ const perte = useForm({ motif_perte_id: null as number | null, commentaire: '' }
 const motifChoisi = computed(() => props.motifs.find((m) => m.id === perte.motif_perte_id));
 function perdre() {
     perte.post(`/opportunites/${props.opportunite.id}/perdre`);
+}
+
+// §28 : le détail par produit. Une copie locale, éditable, remplacée en bloc.
+const lignes = ref<Ligne[]>(props.lignes.map((l) => ({
+    produit_id: l.produit_id ?? null, designation: l.designation,
+    quantite: l.quantite, unite: l.unite ?? null, prix_unitaire: l.prix_unitaire,
+})));
+const enregistreLignes = ref(false);
+
+function ajouterLigne() {
+    lignes.value.push({ produit_id: null, designation: '', quantite: 1, unite: null, prix_unitaire: 0 });
+}
+function retirerLigne(i: number) {
+    lignes.value.splice(i, 1);
+}
+// Le catalogue est une AIDE (§28) : choisir un produit préremplit, sans fermer la saisie libre.
+function choisirProduit(l: Ligne) {
+    const p = props.catalogue.find((c) => c.id === l.produit_id);
+    if (p) {
+        if (!l.designation) l.designation = p.designation;
+        if (l.prix_unitaire === 0 && p.prix_catalogue !== null) l.prix_unitaire = p.prix_catalogue;
+        if (!l.unite && p.unite) l.unite = p.unite;
+    }
+}
+const totalLignes = computed(() => lignes.value.reduce((s, l) => s + Number(l.quantite) * Number(l.prix_unitaire), 0));
+
+function enregistrer() {
+    enregistreLignes.value = true;
+    router.post(`/opportunites/${props.opportunite.id}/lignes`, { lignes: lignes.value }, {
+        preserveScroll: true,
+        onFinish: () => { enregistreLignes.value = false; },
+    });
 }
 
 defineOptions({
@@ -96,6 +133,92 @@ defineOptions({
                 <p class="text-sm">{{ opportunite.proprietaire ?? '—' }}</p>
             </div>
         </div>
+
+        <!-- Détail par produit (§28). Éditable seulement sur une affaire ouverte (RG-OPP-006). -->
+        <section class="flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+                <h2 class="text-sm font-semibold">Détail par produit (§28)</h2>
+                <span class="font-mono text-sm">{{ mad.format(totalLignes) }}</span>
+            </div>
+
+            <!-- Affaire ouverte : saisie -->
+            <div v-if="ouverte && peutModifier" class="flex flex-col gap-2">
+                <div class="overflow-x-auto rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+                    <table class="w-full text-sm">
+                        <thead class="bg-muted/50 text-left text-muted-foreground">
+                            <tr>
+                                <th class="px-2 py-2 font-medium">Produit</th>
+                                <th class="px-2 py-2 font-medium">Désignation</th>
+                                <th class="px-2 py-2 font-medium text-right">Qté</th>
+                                <th class="px-2 py-2 font-medium text-right">Prix unit.</th>
+                                <th class="px-2 py-2 font-medium text-right">Montant</th>
+                                <th class="px-2 py-2"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(l, i) in lignes" :key="i" class="border-t border-sidebar-border/50">
+                                <td class="px-2 py-1">
+                                    <select v-model="l.produit_id" class="w-40 rounded-md border bg-background px-2 py-1" @change="choisirProduit(l)">
+                                        <option :value="null">— Libre —</option>
+                                        <option v-for="p in catalogue" :key="p.id" :value="p.id">{{ p.designation }}</option>
+                                    </select>
+                                </td>
+                                <td class="px-2 py-1">
+                                    <input v-model="l.designation" type="text" class="w-full rounded-md border bg-background px-2 py-1" />
+                                </td>
+                                <td class="px-2 py-1">
+                                    <input v-model.number="l.quantite" type="number" min="0.01" step="0.01" class="w-20 rounded-md border bg-background px-2 py-1 text-right" />
+                                </td>
+                                <td class="px-2 py-1">
+                                    <input v-model.number="l.prix_unitaire" type="number" min="0" step="0.01" class="w-28 rounded-md border bg-background px-2 py-1 text-right" />
+                                </td>
+                                <td class="px-2 py-1 text-right font-mono text-xs">{{ mad.format(Number(l.quantite) * Number(l.prix_unitaire)) }}</td>
+                                <td class="px-2 py-1 text-right">
+                                    <button type="button" class="text-destructive hover:underline" @click="retirerLigne(i)">Retirer</button>
+                                </td>
+                            </tr>
+                            <tr v-if="lignes.length === 0">
+                                <td colspan="6" class="px-2 py-4 text-center text-muted-foreground">Aucune ligne. Ajoutez-en une.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button type="button" class="rounded-md border border-sidebar-border/70 px-3 py-1.5 text-sm hover:bg-muted dark:border-sidebar-border" @click="ajouterLigne">
+                        Ajouter une ligne
+                    </button>
+                    <button type="button" class="rounded-md bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90" :disabled="enregistreLignes" @click="enregistrer">
+                        Enregistrer le détail
+                    </button>
+                </div>
+            </div>
+
+            <!-- Affaire close ou lecture seule -->
+            <div v-else class="overflow-x-auto rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+                <table class="w-full text-sm">
+                    <thead class="bg-muted/50 text-left text-muted-foreground">
+                        <tr>
+                            <th class="px-4 py-2 font-medium">Désignation</th>
+                            <th class="px-4 py-2 font-medium text-right">Qté</th>
+                            <th class="px-4 py-2 font-medium text-right">Prix unit.</th>
+                            <th class="px-4 py-2 font-medium text-right">Montant</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(l, i) in props.lignes" :key="i" class="border-t border-sidebar-border/50">
+                            <td class="px-4 py-2">{{ l.designation }}<span v-if="l.produit" class="ml-1 text-xs text-muted-foreground">({{ l.produit }})</span></td>
+                            <td class="px-4 py-2 text-right">{{ l.quantite }}</td>
+                            <td class="px-4 py-2 text-right font-mono text-xs">{{ mad.format(l.prix_unitaire) }}</td>
+                            <td class="px-4 py-2 text-right font-mono text-xs">{{ mad.format(l.montant_ht ?? 0) }}</td>
+                        </tr>
+                        <tr v-if="props.lignes.length === 0">
+                            <td colspan="4" class="px-4 py-4 text-center text-muted-foreground">Aucune ligne.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p v-if="!ouverte" class="text-xs text-muted-foreground">Affaire close : le détail ne se modifie plus (RG-OPP-006).</p>
+        </section>
 
         <!-- Clôture (RG-OPP-002/003/005) -->
         <section v-if="ouverte && peutCloturer" class="flex flex-col gap-4">

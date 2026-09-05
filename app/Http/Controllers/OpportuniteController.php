@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreOpportuniteRequest;
 use App\Models\Opportunite;
+use App\Models\Produit;
 use App\Models\Referentiels\EtapePipeline;
 use App\Models\Referentiels\MotifPerte;
 use App\Models\Societe;
@@ -13,6 +14,7 @@ use App\Support\Audit;
 use App\Support\ClotureOpportunite;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -79,7 +81,8 @@ class OpportuniteController extends Controller
         abort_unless($request->user()->peut('opportunite.consulter'), 403);
         abort_unless($this->dansPerimetre($request, $opportunite, 'opportunite.consulter'), 404);
 
-        $opportunite->load(['societe:id,numero,raison_sociale,etat', 'etape:id,libelle', 'motifPerte:id,libelle', 'proprietaire']);
+        $opportunite->load(['societe:id,numero,raison_sociale,etat', 'etape:id,libelle', 'motifPerte:id,libelle', 'proprietaire',
+            'lignes' => fn ($q) => $q->orderBy('ordre')->orderBy('id')->with('produit:id,designation')]);
 
         return Inertia::render('Opportunites/Show', [
             'opportunite' => [
@@ -104,10 +107,67 @@ class OpportuniteController extends Controller
                 'etat' => $opportunite->societe?->etat,
             ],
             'peutCloturer' => $request->user()->peut('opportunite.cloturer'),
+            'peutModifier' => $request->user()->peut('opportunite.modifier'),
+            'lignes' => $opportunite->lignes->map(fn ($l) => [
+                'id' => $l->id,
+                'designation' => $l->designation,
+                'produit' => $l->produit?->designation,
+                'quantite' => (float) $l->quantite,
+                'unite' => $l->unite,
+                'prix_unitaire' => (float) $l->prix_unitaire,
+                'montant_ht' => (float) $l->montant_ht,
+            ])->values(),
+            // Le catalogue est une AIDE, pas une contrainte (§28) : la ligne libre
+            // reste possible. Il n'est offert qu'aux affaires ouvertes (RG-OPP-006).
+            'catalogue' => $opportunite->estClose() ? [] : Produit::query()->where('actif', true)
+                ->orderBy('designation')->get(['id', 'designation', 'prix_catalogue', 'unite'])
+                ->map(fn ($p) => ['id' => $p->id, 'designation' => $p->designation,
+                    'prix_catalogue' => $p->prix_catalogue !== null ? (float) $p->prix_catalogue : null, 'unite' => $p->unite]),
             'motifs' => MotifPerte::query()->where('actif', true)->orderBy('ordre')
                 ->get(['id', 'libelle', 'commentaire_obligatoire'])
                 ->map(fn ($m) => ['id' => $m->id, 'libelle' => $m->libelle, 'commentaire_obligatoire' => $m->commentaire_obligatoire]),
         ]);
+    }
+
+    /**
+     * Remplace TOUTES les lignes de l'affaire (§28). RG-OPP-006 : une affaire
+     * CLOSE ne reçoit plus de lignes — une retouche postérieure à la clôture
+     * déplacerait un chiffre du §76 déjà publié. Le verrou couvre le GAIN autant
+     * que la perte, et le gain compte davantage (il alimente le CA par produit).
+     */
+    public function lignes(Request $request, Opportunite $opportunite): RedirectResponse
+    {
+        abort_unless($request->user()->peut('opportunite.modifier'), 403);
+        abort_unless($this->dansPerimetre($request, $opportunite, 'opportunite.modifier'), 404);
+
+        if ($opportunite->estClose()) {
+            return back()->with('error', 'RG-OPP-006 : cette affaire est close. Son détail ne se modifie plus.');
+        }
+
+        $data = $request->validate([
+            'lignes' => ['present', 'array'],
+            'lignes.*.produit_id' => ['nullable', 'integer', 'exists:produits,id'],
+            'lignes.*.designation' => ['required', 'string', 'max:200'],
+            'lignes.*.quantite' => ['required', 'numeric', 'gt:0'],
+            'lignes.*.unite' => ['nullable', 'string', 'max:20'],
+            'lignes.*.prix_unitaire' => ['required', 'numeric', 'min:0'],
+        ]);
+
+        DB::transaction(function () use ($opportunite, $data): void {
+            $opportunite->lignes()->delete();
+            foreach (array_values($data['lignes']) as $i => $ligne) {
+                $opportunite->lignes()->create([
+                    'produit_id' => $ligne['produit_id'] ?? null,
+                    'designation' => $ligne['designation'],
+                    'quantite' => $ligne['quantite'],
+                    'unite' => $ligne['unite'] ?? null,
+                    'prix_unitaire' => $ligne['prix_unitaire'],
+                    'ordre' => $i,
+                ]);
+            }
+        });
+
+        return back()->with('success', 'Détail de l\'affaire enregistré.');
     }
 
     public function gagner(Request $request, Opportunite $opportunite, ClotureOpportunite $cloture): RedirectResponse

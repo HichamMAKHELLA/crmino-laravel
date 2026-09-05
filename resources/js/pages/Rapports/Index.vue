@@ -7,6 +7,13 @@ interface LignePrev {
 }
 interface LigneMotif { motif: string; nb: number; montant: number }
 interface LigneEntonnoir { palier: string; nb: number }
+interface LigneVentil { produit: string; gamme: string | null; famille: string | null; opportunites_ouvertes: number; pipeline: number; gagnees: number; ca_gagne: number }
+interface Ventilation {
+    lignes: LigneVentil[];
+    pipeline_total: number; pipeline_ventile: number; taux_pipeline: number | null;
+    ca_gagne_total: number; ca_gagne_ventile: number; taux_ca_gagne: number | null;
+    affaires_ouvertes_sans_ligne: number;
+}
 
 const props = defineProps<{
     onglet: string;
@@ -15,6 +22,7 @@ const props = defineProps<{
     previsionnel: LignePrev[] | null;
     motifs: LigneMotif[] | null;
     entonnoir: LigneEntonnoir[] | null;
+    ventilation: Ventilation | null;
 }>();
 
 const mad = new Intl.NumberFormat('fr-MA', { style: 'currency', currency: 'MAD', maximumFractionDigits: 0 });
@@ -60,6 +68,13 @@ defineOptions({ layout: { breadcrumbs: [{ title: 'Rapports', href: '/rapports' }
                 :class="onglet === 'entonnoir' ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground'"
             >
                 Entonnoir (§39)
+            </Link>
+            <Link
+                href="/rapports?onglet=ventilation"
+                class="rounded-t-md px-4 py-2 text-sm font-medium"
+                :class="onglet === 'ventilation' ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground'"
+            >
+                Ventilation produit (§76)
             </Link>
         </div>
 
@@ -157,6 +172,62 @@ defineOptions({ layout: { breadcrumbs: [{ title: 'Rapports', href: '/rapports' }
             <p v-if="(entonnoir?.[0]?.nb ?? 0) === 0" class="rounded-xl border border-dashed border-sidebar-border/70 p-6 text-center text-sm text-muted-foreground dark:border-sidebar-border">
                 Aucun lead sur la période.
             </p>
+        </div>
+
+        <!-- §76 : ventilation du chiffre par produit + couverture -->
+        <div v-if="onglet === 'ventilation' && ventilation" class="flex flex-col gap-4">
+            <!-- Couverture : la somme des lignes comparée au TOTAL d'en-tête. -->
+            <div class="grid gap-3 sm:grid-cols-2">
+                <div class="rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border">
+                    <p class="text-xs text-muted-foreground">Couverture du pipeline (§76)</p>
+                    <p class="mt-1 text-sm">
+                        {{ mad.format(ventilation.pipeline_ventile) }} ventilés sur {{ mad.format(ventilation.pipeline_total) }}
+                    </p>
+                    <p class="mt-1 text-lg font-semibold">
+                        {{ ventilation.taux_pipeline !== null ? ventilation.taux_pipeline + ' %' : '—' }}
+                    </p>
+                    <p v-if="ventilation.affaires_ouvertes_sans_ligne > 0" class="mt-1 text-xs text-amber-700 dark:text-amber-400">
+                        {{ ventilation.affaires_ouvertes_sans_ligne }} affaire(s) ouverte(s) sans ligne ventilable.
+                    </p>
+                </div>
+                <div class="rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border">
+                    <p class="text-xs text-muted-foreground">Couverture du CA gagné (§76)</p>
+                    <p class="mt-1 text-sm">
+                        {{ mad.format(ventilation.ca_gagne_ventile) }} ventilés sur {{ mad.format(ventilation.ca_gagne_total) }}
+                    </p>
+                    <p class="mt-1 text-lg font-semibold">
+                        {{ ventilation.taux_ca_gagne !== null ? ventilation.taux_ca_gagne + ' %' : '—' }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+                <table class="w-full text-sm">
+                    <thead class="bg-muted/50 text-left text-muted-foreground">
+                        <tr>
+                            <th class="px-4 py-2 font-medium">Produit</th>
+                            <th class="px-4 py-2 font-medium">Gamme</th>
+                            <th class="px-4 py-2 font-medium text-right">Affaires ouvertes</th>
+                            <th class="px-4 py-2 font-medium text-right">Pipeline</th>
+                            <th class="px-4 py-2 font-medium text-right">Gagnées</th>
+                            <th class="px-4 py-2 font-medium text-right">CA gagné</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="l in ventilation.lignes" :key="l.produit" class="border-t border-sidebar-border/50">
+                            <td class="px-4 py-2">{{ l.produit }}</td>
+                            <td class="px-4 py-2 text-muted-foreground">{{ l.gamme ?? '—' }}</td>
+                            <td class="px-4 py-2 text-right">{{ l.opportunites_ouvertes }}</td>
+                            <td class="px-4 py-2 text-right font-mono text-xs">{{ mad.format(l.pipeline) }}</td>
+                            <td class="px-4 py-2 text-right">{{ l.gagnees }}</td>
+                            <td class="px-4 py-2 text-right font-mono text-xs">{{ mad.format(l.ca_gagne) }}</td>
+                        </tr>
+                        <tr v-if="ventilation.lignes.length === 0">
+                            <td colspan="6" class="px-4 py-8 text-center text-muted-foreground">Aucune ligne ventilable.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </template>

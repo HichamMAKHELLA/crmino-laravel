@@ -64,10 +64,10 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | 4 | Référentiels administrables (§50, `RG-REF-*`) | **Tranches 1-2 faites** (8 auto-contenus + géographique + fonctions) ; reste score, besoins, catalogue, alertes |
 | 5 | Leads + doublons + qualification + score (`RG-LEA-*`, `RG-DOU`, `RG-IND`) | **Tranches 1-2 faites** (table, périmètre prouvé, numérotation, écran Inertia, doublons §41) ; reste édition qualif./score, suggestion de score |
 | 6 | Sociétés + contacts + conversion (`RG-SOC`, §31) | **Tranches 1-2 faites** (table, périmètre, liste, conversion §31 avec bascule des contacts, fiches lead/société) ; reste bascule activités/tâches/documents (§8), état §32, édition |
-| 7 | Opportunités + lignes + pipeline (`RG-OPP-001..007`) | **Tranches 1-2 faites** (pondéré généré, création, board, fiche, clôture gain/perte RG-OPP-002/003/005) ; reste glisser-déposer §64, lignes §28 |
+| 7 | Opportunités + lignes + pipeline (`RG-OPP-001..007`) | **Tranches 1-3 faites** (pondéré généré, création, board, fiche, clôture RG-OPP-002/003/005, lignes §28 + RG-OPP-006) ; reste glisser-déposer §64 |
 | 8 | Activités, tâches, notifications, campagnes, catalogue | **Terminée** (activités, tâches, notifications, campagnes, catalogue §28 + §47) |
 | 9 | Jobs/planif (`--notifier` → Scheduler/Queue) + Outbox Sage | À faire |
-| 10 | Rapports, tableaux de bord, import Excel, droit d'accès (§72) | **Tranches 1-4 faites** (accueil §77, rapports §75/§38/§39, droit d'accès §72) ; reste §76, import Excel |
+| 10 | Rapports, tableaux de bord, import Excel, droit d'accès (§72) | **Tranches 1-5 faites** (accueil §77, rapports §75/§38/§39/§76, droit d'accès §72) ; reste import Excel §42 |
 | 11 | Tests de parité Pest + Vitest | À faire |
 | 12 | Bascule production | À faire |
 
@@ -108,7 +108,8 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Ouverture d'une affaire (§25) + RG-OPP-004 (proba surchargée) | Oui | Oui | Navigateur | Terminé |
 | Pipeline : board par étape (§64, lecture) + périmètre | Oui | Oui | Navigateur | Terminé |
 | Fiche opportunité (§58) + clôture RG-OPP-002/003/005 | Oui | Oui | OK | Terminé |
-| Opportunités : glisser-déposer §64, lignes §28 | Oui | Non | — | À faire |
+| Lignes d'opportunité §28 (montant HT généré, RG-OPP-006, panneau fiche) | Oui | Oui | OK | Terminé (2 mutations : filtre produit, RG-IND-001) |
+| Opportunités : glisser-déposer §64 | Oui | Non | — | À faire |
 | Activités §19/§20 : journalisation + répercussion fiche + frise §73 | Oui | Oui | OK | Terminé |
 | Conversion §31 : bascule des activités (en plus des contacts) | Oui | Oui | OK | Terminé |
 | Tâches §20/§21 : « Mes tâches », tri, terminaison | Oui | Oui | OK | Terminé |
@@ -119,7 +120,8 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Accueil commercial §77 (tuiles) | Oui | Oui | OK | Terminé |
 | Rapports §75 (prévisionnel), §38 (motifs de perte), §39 (entonnoir) | Oui | Oui | OK | Terminé (entonnoir prouvé par mutation) |
 | Droit d'accès §72 (dossier, trace Export, portée Toutes) | Oui | Oui | OK | Terminé |
-| Rapports §76 (ventilation par produit), import Excel §42 | Oui | Non | — | À faire |
+| Rapports §76 (ventilation par produit + couverture, RG-IND-001) | Oui | Oui | OK | Terminé (mutation : filtre produit, garde null) |
+| Import Excel §42 | Oui | Non | — | À faire |
 | Authentification | Oui | (kit) | — | À reprendre en Phase 2 |
 
 ## Problèmes / à confirmer

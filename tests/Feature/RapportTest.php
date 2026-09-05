@@ -11,6 +11,7 @@ use Inertia\Testing\AssertableInertia;
 beforeEach(function () {
     $this->seed(\Database\Seeders\SecuriteSeeder::class);
     $this->seed(\Database\Seeders\ReferentielsSeeder::class);
+    $this->seed(\Database\Seeders\CatalogueSeeder::class);
     $this->u = crminoUtilisateur('COMMERCIAL'); // rapport.consulter en Siennes
 });
 
@@ -81,6 +82,59 @@ it('§39 — l entonnoir compte des LEADS, contactés >= rendez-vous', function 
             // Invariant : affectés >= contactés >= rendez-vous.
             expect($e['Leads affectés']['nb'])->toBeGreaterThanOrEqual($e['Contactés']['nb']);
             expect($e['Contactés']['nb'])->toBeGreaterThanOrEqual($e['Rendez-vous']['nb']);
+        });
+});
+
+it('§76 — ventile le chiffre par produit, et compare aux TOTAUX d en-tête', function () {
+    $this->withoutVite();
+    $p = \App\Models\Produit::factory()->create(['designation' => 'Sage Compta']);
+    $soc = Societe::factory()->create(['proprietaire_id' => $this->u->id]);
+
+    // A ouverte, en-tête 200000 : une ligne produit 200000 + une ligne LIBRE 50000
+    // (non ventilable, pour éprouver le filtre produit_id).
+    $a = Opportunite::factory()->create(['societe_id' => $soc->id, 'proprietaire_id' => $this->u->id,
+        'statut' => 'Ouverte', 'montant_ht' => 200000]);
+    $a->lignes()->create(['produit_id' => $p->id, 'designation' => 'P', 'quantite' => 1, 'prix_unitaire' => 200000, 'ordre' => 0]);
+    $a->lignes()->create(['produit_id' => null, 'designation' => 'Libre', 'quantite' => 1, 'prix_unitaire' => 50000, 'ordre' => 1]);
+
+    // C ouverte, en-tête 100000, AUCUNE ligne ventilable.
+    Opportunite::factory()->create(['societe_id' => $soc->id, 'proprietaire_id' => $this->u->id,
+        'statut' => 'Ouverte', 'montant_ht' => 100000]);
+
+    // B gagnée, en-tête 600000, une ligne produit 400000.
+    $b = Opportunite::factory()->create(['societe_id' => $soc->id, 'proprietaire_id' => $this->u->id,
+        'statut' => 'Gagnee', 'montant_ht' => 600000, 'probabilite' => 100, 'date_cloture' => now()]);
+    $b->lignes()->create(['produit_id' => $p->id, 'designation' => 'P', 'quantite' => 1, 'prix_unitaire' => 400000, 'ordre' => 0]);
+
+    $this->actingAs($this->u)->get('/rapports?onglet=ventilation')
+        ->assertInertia(function (AssertableInertia $p) {
+            $v = $p->toArray()['props']['ventilation'];
+            $ligne = collect($v['lignes'])->firstWhere('produit', 'Sage Compta');
+            expect($ligne['pipeline'])->toBe(200000);      // ouverte A, produit seul
+            expect($ligne['ca_gagne'])->toBe(400000);      // gagnée B
+            expect($ligne['opportunites_ouvertes'])->toBe(1);
+            expect($ligne['gagnees'])->toBe(1);
+
+            // Couverture : le total d'en-tête, jamais la somme des lignes.
+            expect($v['pipeline_total'])->toBe(300000);    // A 200000 + C 100000
+            expect($v['pipeline_ventile'])->toBe(200000);  // la ligne LIBRE ne compte pas
+            expect($v['taux_pipeline'])->toBe(66.7);
+            expect($v['ca_gagne_total'])->toBe(600000);
+            expect($v['ca_gagne_ventile'])->toBe(400000);
+            expect($v['taux_ca_gagne'])->toBe(66.7);
+            expect($v['affaires_ouvertes_sans_ligne'])->toBe(1); // C
+        });
+});
+
+it('§76 RG-IND-001 — un taux sans base est NULL, jamais zéro', function () {
+    $this->withoutVite();
+    // Aucune affaire : pas de base -> le taux n'est pas 0, il n'existe pas.
+    $this->actingAs($this->u)->get('/rapports?onglet=ventilation')
+        ->assertInertia(function (AssertableInertia $p) {
+            $v = $p->toArray()['props']['ventilation'];
+            expect($v['taux_pipeline'])->toBeNull();
+            expect($v['taux_ca_gagne'])->toBeNull();
+            expect($v['pipeline_total'])->toBe(0);
         });
 });
 

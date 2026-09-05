@@ -12,6 +12,7 @@ use App\Support\Numerotation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Opportunité (§25). Née sur une société. Le montant pondéré (RG-OPP-001) est
@@ -90,5 +91,11 @@ class Opportunite extends Model
     public function contactPrincipal(): BelongsTo
     {
         return $this->belongsTo(Contact::class, 'contact_principal_id');
+    }
+
+    /** @return HasMany<OpportuniteLigne, $this> */
+    public function lignes(): HasMany
+    {
+        return $this->hasMany(OpportuniteLigne::class, 'opportunite_id');
     }
 }

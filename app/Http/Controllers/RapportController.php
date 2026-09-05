@@ -20,7 +20,7 @@ class RapportController extends Controller
     {
         abort_unless($request->user()->peut('rapport.consulter'), 403);
 
-        $onglet = in_array($request->query('onglet'), ['previsionnel', 'motifs', 'entonnoir'], true)
+        $onglet = in_array($request->query('onglet'), ['previsionnel', 'motifs', 'entonnoir', 'ventilation'], true)
             ? $request->query('onglet') : 'previsionnel';
 
         return Inertia::render('Rapports/Index', [
@@ -30,7 +30,74 @@ class RapportController extends Controller
             'previsionnel' => $onglet === 'previsionnel' ? $this->previsionnel($request) : null,
             'motifs' => $onglet === 'motifs' ? $this->motifs($request) : null,
             'entonnoir' => $onglet === 'entonnoir' ? $this->entonnoir($request) : null,
+            'ventilation' => $onglet === 'ventilation' ? $this->ventilation($request) : null,
         ]);
+    }
+
+    /**
+     * §76 : la ventilation du chiffre par PRODUIT. Elle somme les LIGNES
+     * ventilables (produit_id non nul), jamais le montant d'en-tête — celui-ci
+     * est saisi indépendamment (§25). La couverture compare la somme des lignes
+     * au TOTAL d'en-tête : sans ce total, absent du tableau, l'écart entre §75 et
+     * §76 passerait pour une erreur. RG-IND-001 : un taux sans base est NULL,
+     * jamais zéro — un rapport à 0 % de couverture se lirait « rien n'est ventilé »
+     * là où il n'y a simplement rien à ventiler.
+     */
+    private function ventilation(Request $request): array
+    {
+        $enPerimetre = fn () => Opportunite::query()
+            ->dansPerimetre($request->user(), 'opportunite.consulter')
+            ->where('actif', true)
+            ->whereIn('statut', ['Ouverte', 'Gagnee']);
+
+        // Le détail par produit : on ne somme que les lignes rattachées à un produit.
+        $lignes = \App\Models\OpportuniteLigne::query()
+            ->whereNotNull('produit_id')
+            ->whereHas('opportunite', fn ($q) => $enPerimetre())
+            ->with(['opportunite:id,statut', 'produit:id,designation,gamme_id', 'produit.gamme:id,libelle,famille_id', 'produit.gamme.famille:id,libelle'])
+            ->get(['id', 'opportunite_id', 'produit_id', 'montant_ht']);
+
+        $parProduit = $lignes->groupBy('produit_id')->map(function ($grp) {
+            $p = $grp->first()->produit;
+            $ouvertes = $grp->filter(fn ($l) => $l->opportunite?->statut === 'Ouverte');
+            $gagnees = $grp->filter(fn ($l) => $l->opportunite?->statut === 'Gagnee');
+
+            return [
+                'produit' => $p?->designation ?? '—',
+                'gamme' => $p?->gamme?->libelle,
+                'famille' => $p?->gamme?->famille?->libelle,
+                'opportunites_ouvertes' => $ouvertes->pluck('opportunite_id')->unique()->count(),
+                'pipeline' => (float) $ouvertes->sum('montant_ht'),
+                'gagnees' => $gagnees->pluck('opportunite_id')->unique()->count(),
+                'ca_gagne' => (float) $gagnees->sum('montant_ht'),
+            ];
+        })->sortByDesc('ca_gagne')->values()->all();
+
+        // La couverture, en comparant les en-têtes aux lignes ventilables.
+        $affaires = $enPerimetre()->withSum(
+            ['lignes as ventile' => fn ($q) => $q->whereNotNull('produit_id')],
+            'montant_ht'
+        )->get(['id', 'statut', 'montant_ht']);
+
+        $ouvertes = $affaires->where('statut', 'Ouverte');
+        $gagnees = $affaires->where('statut', 'Gagnee');
+
+        $pipelineTotal = (float) $ouvertes->sum('montant_ht');
+        $pipelineVentile = (float) $ouvertes->sum(fn ($o) => (float) ($o->ventile ?? 0));
+        $caGagneTotal = (float) $gagnees->sum('montant_ht');
+        $caGagneVentile = (float) $gagnees->sum(fn ($o) => (float) ($o->ventile ?? 0));
+
+        return [
+            'lignes' => $parProduit,
+            'pipeline_total' => $pipelineTotal,
+            'pipeline_ventile' => $pipelineVentile,
+            // RG-IND-001 : NULL, jamais zéro, quand il n'y a pas de base.
+            'taux_pipeline' => $pipelineTotal > 0 ? round($pipelineVentile / $pipelineTotal * 100, 1) : null,
+            'ca_gagne_total' => $caGagneTotal,
+            'ca_gagne_ventile' => $caGagneVentile,
+            'taux_ca_gagne' => $caGagneTotal > 0 ? round($caGagneVentile / $caGagneTotal * 100, 1) : null,
+            'affaires_ouvertes_sans_ligne' => $ouvertes->filter(fn ($o) => (float) ($o->ventile ?? 0) === 0.0)->count(),
+        ];
     }
 
     /**
