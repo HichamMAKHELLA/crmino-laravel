@@ -67,7 +67,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | 7 | Opportunités + lignes + pipeline (`RG-OPP-001..007`) | **Terminée** (pondéré généré, création, board, fiche, clôture RG-OPP-002/003/005, lignes §28 + RG-OPP-006, glisser-déposer §64 RG-OPP-005) |
 | 8 | Activités, tâches, notifications, campagnes, catalogue | **Terminée** (activités, tâches, notifications, campagnes, catalogue §28 + §47) |
 | 9 | Jobs/planif (`--notifier` → Scheduler/Queue) + Outbox Sage | **Outbox §48 faite** (dépôt au gain, dans la transaction) ; reste jobs planifiés (notifications d'état, purge) |
-| 10 | Rapports, tableaux de bord, import Excel, droit d'accès (§72) | **Tranches 1-6 faites** (accueil §77, rapports §75/§38/§39/§76, droit d'accès §72, import CSV §42 deux temps + atomique) ; reste import .xlsx |
+| 10 | Rapports, tableaux de bord, import Excel, droit d'accès (§72) | **Terminée** (accueil §77, rapports §75/§38/§39/§76, droit d'accès §72, import CSV + .xlsx §42 deux temps + atomique) |
 | 11 | Tests de parité Pest + Vitest | À faire |
 | 12 | Bascule production | À faire |
 
@@ -129,7 +129,7 @@ Périmètre mesuré du .NET : **24 contrôleurs**, **29 dépôts** (~374 requêt
 | Droit d'accès §72 (dossier, trace Export, portée Toutes) | Oui | Oui | OK | Terminé |
 | Rapports §76 (ventilation par produit + couverture, RG-IND-001) | Oui | Oui | OK | Terminé (mutation : filtre produit, garde null) |
 | Import CSV §42 (deux temps analyse→import, atomique, doublons §41, lot) | Oui | Oui | OK | Terminé (mutations : doublon, trace Echoue) |
-| Import .xlsx §42 (lecture classeur, valeur calculée) | Oui | Non | — | À faire |
+| Import .xlsx §42 (LectureClasseur PhpSpreadsheet, valeur calculée) | Oui | Oui | OK | Terminé (mutation : formule vs valeur) |
 | Outbox Sage §48 (dépôt au gain dans la transaction, RG-OPP-003) | Oui | Oui | OK | Terminé (mutation : dépôt retiré) |
 | Authentification | Oui | (kit) | — | À reprendre en Phase 2 |
 

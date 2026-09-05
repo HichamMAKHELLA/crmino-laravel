@@ -8,9 +8,11 @@ use App\Models\Campagne;
 use App\Models\ImportLot;
 use App\Models\Referentiels\Source;
 use App\Support\Import\ImportLeads;
+use App\Support\Import\LectureClasseur;
 use App\Support\Import\LectureTabulee;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -35,9 +37,9 @@ class ImportController extends Controller
     {
         abort_unless($request->user()->peut('import.executer'), 403);
 
-        $request->validate(['fichier' => ['required', 'file', 'mimes:csv,txt', 'max:'.self::TAILLE_MAX]]);
+        $request->validate(['fichier' => ['required', 'file', 'mimes:csv,txt,xlsx', 'max:'.self::TAILLE_MAX]]);
 
-        $lignes = LectureTabulee::analyser($request->file('fichier')->get())['lignes'];
+        $lignes = $this->lignesDuFichier($request->file('fichier'));
 
         // L'aperçu ne DÉCLENCHE aucune écriture (§42).
         return Inertia::render('Import/Index', array_merge($this->donnees($request), [
@@ -51,12 +53,12 @@ class ImportController extends Controller
         abort_unless($request->user()->peut('import.executer'), 403);
 
         $data = $request->validate([
-            'fichier' => ['required', 'file', 'mimes:csv,txt', 'max:'.self::TAILLE_MAX],
+            'fichier' => ['required', 'file', 'mimes:csv,txt,xlsx', 'max:'.self::TAILLE_MAX],
             'source_id' => ['required', 'integer', 'exists:sources,id'],
             'campagne_id' => ['nullable', 'integer'],
         ]);
 
-        $lignes = LectureTabulee::analyser($request->file('fichier')->get())['lignes'];
+        $lignes = $this->lignesDuFichier($request->file('fichier'));
 
         $lot = $import->importer(
             $request->user(),
@@ -70,6 +72,22 @@ class ImportController extends Controller
             "Import terminé : {$lot->lignes_importees} lead".($lot->lignes_importees > 1 ? 's' : '')
             .", {$lot->lignes_rejetees} rejeté".($lot->lignes_rejetees > 1 ? 's' : '')
             .", {$lot->lignes_doublons} doublon".($lot->lignes_doublons > 1 ? 's' : '').'.');
+    }
+
+    /**
+     * Un seul point sait de quel format vient la ligne — la suite (mapping,
+     * doublons, aperçu) n'en dépend pas (§42). Le classeur passe par le fichier
+     * sur disque ; le CSV par son contenu.
+     *
+     * @return list<array<string,string>>
+     */
+    private function lignesDuFichier(UploadedFile $fichier): array
+    {
+        if (strtolower($fichier->getClientOriginalExtension()) === 'xlsx') {
+            return LectureClasseur::analyser($fichier->getRealPath())['lignes'];
+        }
+
+        return LectureTabulee::analyser($fichier->get())['lignes'];
     }
 
     /** @return array<string, mixed> */

@@ -80,13 +80,13 @@ defineOptions({ layout: { breadcrumbs: [{ title: 'Import', href: '/import' }] } 
         <div>
             <h1 class="text-xl font-semibold">Import de prospects (§42)</h1>
             <p class="mt-1 text-sm text-muted-foreground">
-                CSV ou texte. En-têtes attendues : raison_sociale, ice, telephone, gsm, email, nom_contact, prenom_contact, site_web.
+                CSV ou Excel (.xlsx) — la première feuille est lue. En-têtes attendues : raison_sociale, ice, telephone, gsm, email, nom_contact, prenom_contact, site_web.
             </p>
         </div>
 
         <!-- Étape 1 : choisir et analyser (aucune écriture) -->
         <div class="flex flex-col gap-3 rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border">
-            <input type="file" accept=".csv,.txt" class="text-sm" @change="choisir" />
+            <input type="file" accept=".csv,.txt,.xlsx" class="text-sm" @change="choisir" />
             <div>
                 <button
                     type="button"
