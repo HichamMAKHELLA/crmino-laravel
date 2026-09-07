@@ -1,4 +1,5 @@
 version: 2
+# trigger scan composer
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
