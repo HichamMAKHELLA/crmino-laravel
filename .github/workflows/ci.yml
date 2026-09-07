@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: crmino_laravel_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+
+    env:
+      # Base de test : la connexion mariadb de phpunit.xml pointe ici.
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_USERNAME: root
+      DB_PASSWORD: root
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── PHP ──────────────────────────────────────────────────────────────
+      - name: PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql, mbstring, intl, gd, zip, bcmath, fileinfo, dom
+          coverage: none
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ hashFiles('composer.lock') }}
+
+      - name: Composer install
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Préparer l'environnement
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      # Wayfinder engendre les helpers JS de routes (gitignorés) : requis avant
+      # types:check et build.
+      - name: Générer Wayfinder
+        run: php artisan wayfinder:generate
+
+      # ── Front ────────────────────────────────────────────────────────────
+      - name: Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: npm ci
+        run: npm ci
+
+      - name: Vérification des types (vue-tsc)
+        run: npm run types:check
+
+      - name: Tests front (Vitest)
+        run: npm test
+
+      - name: Build du SPA
+        run: npm run build
+
+      # ── Back ─────────────────────────────────────────────────────────────
+      - name: Tests back (Pest)
+        run: php artisan test
