@@ -1,0 +1,31 @@
+name: Dependabot auto-merge
+
+# Active l'auto-fusion des PR Dependabot une fois la CI verte.
+# Portée : correctifs (patch) et versions mineures (minor) seulement — une
+# version MAJEURE peut casser une API et reste en relecture manuelle.
+# La fusion attend le contrôle requis « tests » du ruleset : rien ne part
+# tant que la suite n'est pas verte.
+
+on: pull_request
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  dependabot:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: Métadonnées Dependabot
+        id: meta
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Activer l'auto-fusion (patch et minor)
+        if: steps.meta.outputs.update-type == 'version-update:semver-patch' || steps.meta.outputs.update-type == 'version-update:semver-minor'
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
