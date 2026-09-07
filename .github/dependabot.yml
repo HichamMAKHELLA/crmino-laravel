@@ -10,3 +10,29 @@ updates:
       github-actions:
         patterns:
           - "*"
+
+  # Dépendances PHP (Composer).
+  - package-ecosystem: "composer"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 5
+    open-pull-requests-limit: 5
+    groups:
+      php:
+        patterns:
+          - "*"
+
+  # Dépendances front (npm).
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 5
+    open-pull-requests-limit: 5
+    groups:
+      js:
+        patterns:
+          - "*"
