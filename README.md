@@ -1,5 +1,7 @@
 # CRMino — Laravel
 
+[![CI](https://github.com/HichamMAKHELLA/crmino-laravel/actions/workflows/ci.yml/badge.svg)](https://github.com/HichamMAKHELLA/crmino-laravel/actions/workflows/ci.yml)
+
 CRM commercial d'IMRASOFT : prospection, sociétés, opportunités, activités,
 campagnes, catalogue, rapports. Portage du CRMino **.NET** (ASP.NET Core +
 Dapper + SQL Server + React) vers **Laravel 13 + Inertia 2 + Vue 3 + MariaDB**,
