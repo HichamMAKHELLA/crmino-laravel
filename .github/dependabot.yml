@@ -1,6 +1,4 @@
 version: 2
-# Un push sur ce fichier relance Dependabot sur tous les écosystèmes.
-# (relance ciblée composer — bis)
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -18,7 +16,13 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 5
     open-pull-requests-limit: 5
+    groups:
+      php:
+        patterns:
+          - "*"
 
   # Dépendances front (npm).
   - package-ecosystem: "npm"
