@@ -55,9 +55,10 @@ jobs:
           php artisan key:generate
 
       # Wayfinder engendre les helpers JS de routes (gitignorés) : requis avant
-      # types:check et build.
+      # types:check et build. --with-form pour les variantes .form (comme le
+      # plugin Vite en local, formVariants: true).
       - name: Générer Wayfinder
-        run: php artisan wayfinder:generate
+        run: php artisan wayfinder:generate --with-form
 
       # ── Front ────────────────────────────────────────────────────────────
       - name: Node 20
