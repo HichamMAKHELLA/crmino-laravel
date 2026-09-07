@@ -11,7 +11,9 @@ updates:
         patterns:
           - "*"
 
-  # Dépendances PHP (Composer).
+  # Dépendances PHP (Composer). PAS de groupe : les mises à jour composer
+  # groupées font planter Dependabot en interne (GroupUpdateAllVersions),
+  # constaté le 07/09/2026. Une PR par dépendance contourne le bug.
   - package-ecosystem: "composer"
     directory: "/"
     schedule:
@@ -19,10 +21,6 @@ updates:
     cooldown:
       default-days: 5
     open-pull-requests-limit: 5
-    groups:
-      php:
-        patterns:
-          - "*"
 
   # Dépendances front (npm).
   - package-ecosystem: "npm"
