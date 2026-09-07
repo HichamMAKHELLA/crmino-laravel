@@ -78,3 +78,9 @@ Cron du Scheduler (produit les alertes/notifications, §36) :
 ```
 
 Voir [`docs/deploiement.md`](docs/deploiement.md) pour la procédure complète.
+
+## Licence
+
+Logiciel **propriétaire** — Copyright © 2026 IMRASOFT, tous droits réservés.
+Le dépôt est public à des fins de démonstration ; aucune licence de réutilisation
+n'est accordée. Voir [`LICENSE`](LICENSE).
