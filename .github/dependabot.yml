@@ -1,5 +1,6 @@
 version: 2
 # Un push sur ce fichier relance Dependabot sur tous les écosystèmes.
+# (relance ciblée composer)
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
