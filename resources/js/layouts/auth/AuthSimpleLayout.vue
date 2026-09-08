@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import { home } from '@/routes';
 
 defineProps<{
@@ -16,21 +15,25 @@ defineProps<{
         <div class="w-full max-w-sm">
             <div class="flex flex-col gap-8">
                 <div class="flex flex-col items-center gap-4">
+                    <!-- Marque CRMino + sous-titre §82. -->
                     <Link
                         :href="home()"
-                        class="flex flex-col items-center gap-2 font-medium"
+                        class="flex flex-col items-center gap-1"
+                        aria-label="CRMino — accueil"
                     >
-                        <div
-                            class="mb-1 flex h-9 w-9 items-center justify-center rounded-md"
+                        <span
+                            class="text-brand text-3xl font-black tracking-tight"
                         >
-                            <AppLogoIcon
-                                class="size-9 fill-current text-[var(--foreground)] dark:text-white"
-                            />
-                        </div>
-                        <span class="sr-only">{{ title }}</span>
+                            CRMino
+                        </span>
+                        <span
+                            class="text-muted-foreground text-xs font-medium tracking-wide uppercase"
+                        >
+                            CRM Commercial &amp; Prospection IMRASOFT
+                        </span>
                     </Link>
                     <div class="space-y-2 text-center">
-                        <h1 class="text-xl font-medium">{{ title }}</h1>
+                        <h1 class="text-xl font-bold">{{ title }}</h1>
                         <p class="text-muted-foreground text-center text-sm">
                             {{ description }}
                         </p>
