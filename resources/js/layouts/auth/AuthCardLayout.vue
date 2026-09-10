@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import {
     Card,
     CardContent,
@@ -23,13 +22,17 @@ defineProps<{
         <div class="flex w-full max-w-md flex-col gap-6">
             <Link
                 :href="home()"
-                class="flex items-center gap-2 self-center font-medium"
+                class="flex flex-col items-center gap-1 self-center"
+                aria-label="CRMino — accueil"
             >
-                <div class="flex h-9 w-9 items-center justify-center">
-                    <AppLogoIcon
-                        class="size-9 fill-current text-black dark:text-white"
-                    />
-                </div>
+                <span class="text-brand text-3xl font-black tracking-tight">
+                    CRMino
+                </span>
+                <span
+                    class="text-muted-foreground text-xs font-medium tracking-wide uppercase"
+                >
+                    CRM Commercial &amp; Prospection IMRASOFT
+                </span>
             </Link>
 
             <div class="flex flex-col gap-6">
